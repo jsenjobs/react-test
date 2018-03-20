@@ -9,12 +9,24 @@ import Toggle from './Toggles';
 import Login from './LoginState';
 import TestList from './TestLists';
 import TestForm from './TestForms';
+import RouteTest from './RouteTest';
+import Page1 from './page/Page1';
+import Page2 from './page/Page2';
+
+import { BrowserRouter, Route, Switch} from 'react-router-dom';
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
+      <BrowserRouter>
+      <div>
+        <RouteTest />
+        <Route path='/page1' component={Page1} />
+        <Route path='/page2' component={Page2} />
+        </div>
+      </BrowserRouter>
+      <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
