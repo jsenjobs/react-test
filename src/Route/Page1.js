@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import ParentTimer from '../Clock/ParentTimer'
+import RClock from '../ReduxClock/RClock'
 import LoginState from '../Login/LoginState'
 import FormTest from '../UI/FormTest'
 import ParametersTest from '../UI/PrametersTerst'
@@ -11,6 +12,7 @@ class Page1 extends Component {
         return (<div>
                 <h1>This is {this.props.match.params.name}</h1>
                 <ParentTimer />
+                <RClock />
                 <LoginState />
                 <FormTest options={['Item1','Item2','Item3','Item4','Item5','Item6','Item7']} />
                 <ParametersTest />
