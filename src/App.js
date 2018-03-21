@@ -2,46 +2,40 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import NameModule from './NameModule';
-import Props from './Props';
-import Time from './Time';
-import Toggle from './Toggles';
-import Login from './LoginState';
-import TestList from './TestLists';
-import TestForm from './TestForms';
-import RouteTest from './RouteTest';
-import Page1 from './page/Page1';
-import Page2 from './page/Page2';
 
-import { BrowserRouter, Route, Switch} from 'react-router-dom';
+import RouteTest from './Route/RouteTest';
+import Page1 from './Route/Page1';
+import Page2 from './Route/Page2';
+
+
+// we could use hashrouter or browserRouter
+// hashs router : /#/page1 /#/page2 // if the web point is static resource more
+// and browser router is  /page1 /page2 // if more dynamic request
+// import { BrowserRouter as Router, HashRouter as Router, Route} from 'react-router-dom';
+// switch will only render the first fit component and if no switch router will render all fit path's component
+// Route component render// a component function in {} children //similary with render but it will be render any way{empty hold??}
+import { BrowserRouter as Router, Route, Switch, Redirect} from 'react-router-dom';
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-      <BrowserRouter>
+      <Router>
       <div>
-        <RouteTest />
-        <Route path='/page1' component={Page1} />
-        <Route path='/page2' component={Page2} />
-        </div>
-      </BrowserRouter>
-      <header className="App-header">
+        <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-        <TestForm />
-        <NameModule />
-        <Props name='jack' />
-        <Props name='jac2k' />
-        <Props name='jack3' />
-        <Time />
-        <Toggle />
-        <Login />
-        <TestList datas={[1,2,3,4,5,9]}/>
+        <RouteTest />
+          <Switch>
+            <Route exact path='/' /*  route path /path0 will fit /path0 /path0/xxxx and more if want only fit /path0 use exact(={true}) props*/ >
+              <Redirect to='/page1/page1' />
+            </Route>
+            <Route path='/page1/:name' component={Page1} />
+            <Route path='/page2/:name' component={Page2} />
+          </Switch>
+        </div>
+      </Router>
       </div>
     );
   }
