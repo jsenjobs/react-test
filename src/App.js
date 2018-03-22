@@ -7,7 +7,6 @@ import RouteTest from './Route/RouteTest';
 import Page1 from './Route/Page1';
 import Page2 from './Route/Page2';
 
-
 // we could use hashrouter or browserRouter
 // hashs router : /#/page1 /#/page2 // if the web point is static resource more
 // and browser router is  /page1 /page2 // if more dynamic request
@@ -15,10 +14,17 @@ import Page2 from './Route/Page2';
 // switch will only render the first fit component and if no switch router will render all fit path's component
 // Route component render// a component function in {} children //similary with render but it will be render any way{empty hold??}
 import { BrowserRouter as Router, Route, Switch, Redirect} from 'react-router-dom';
+import { Provider} from 'react-redux';
+import {createStore } from 'redux'
+import reducer from './Redux/Reducer'
+
+
+const store = createStore(reducer, {value:0})
 
 class App extends Component {
   render() {
     return (
+      <Provider store={store}>
       <div className="App">
       <Router>
       <div>
@@ -37,6 +43,7 @@ class App extends Component {
         </div>
       </Router>
       </div>
+      </Provider>
     );
   }
 }

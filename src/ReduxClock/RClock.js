@@ -1,35 +1,22 @@
 import React, {Component} from 'react'
-import {createStore} from 'redux'
-
-
-const reducer = (state = {now:new Date()}, action) => {
-    return {now:new Date()}
-}
-
-const store = createStore(reducer)
+import {connect} from 'react-redux'
 
 class RClock extends Component {
 
-    constructor(props) {
-        super(props)
-        store.subscribe(this.refresh)
-    }
     render() {
+      const {clock} = this.props
         return (
             <div>
-                Current time is {store.getState().now.toLocaleTimeString()}
+                Current time is {clock.toLocaleTimeString()}
             </div>
         )
     }
 
-    refresh = () => {
-
-    }
-
     componentDidMount() {
+        const onUpdate = this.props.onUpdate
         this.timerID = setInterval(_=>{
-            store.dispatch({type:'time'})
-        })
+            onUpdate()
+        }, 1000)
     }
 
     componentWillUnmount() {
@@ -37,4 +24,15 @@ class RClock extends Component {
     }
 }
 
-export default RClock
+function mapStateToProps(state) {
+  return {
+    clock:state.clock
+  }
+}
+function mapDispatchToProps(dispatch) {
+  return {
+    onUpdate:() => dispatch({type:'TIME'})
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(RClock)
