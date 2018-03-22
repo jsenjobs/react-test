@@ -15,11 +15,12 @@ import Page2 from './Route/Page2';
 // Route component render// a component function in {} children //similary with render but it will be render any way{empty hold??}
 import { BrowserRouter as Router, Route, Switch, Redirect} from 'react-router-dom';
 import { Provider} from 'react-redux';
-import {createStore } from 'redux'
+import {createStore, applyMiddleware } from 'redux'
+import {createLogger} from 'redux-logger'
 import reducer from './Redux/Reducer'
 
-
-const store = createStore(reducer, {value:0})
+const logger = createLogger()
+const store = createStore(reducer, {}, applyMiddleware(logger))
 
 class App extends Component {
   render() {
