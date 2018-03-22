@@ -17,10 +17,11 @@ import { BrowserRouter as Router, Route, Switch, Redirect} from 'react-router-do
 import { Provider} from 'react-redux';
 import {createStore, applyMiddleware } from 'redux'
 import {createLogger} from 'redux-logger'
+import promiseMiddleware from 'redux-promise';
 import reducer from './Redux/Reducer'
 
 const logger = createLogger()
-const store = createStore(reducer, {}, applyMiddleware(logger))
+const store = createStore(reducer, {}, applyMiddleware(promiseMiddleware, logger))
 
 class App extends Component {
   render() {
