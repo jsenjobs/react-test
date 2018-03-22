@@ -1,0 +1,141 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 1,
+    "passes": 1,
+    "pending": 0,
+    "failures": 0,
+    "start": "2018-03-22T04:55:40.740Z",
+    "end": "2018-03-22T04:55:40.748Z",
+    "duration": 8,
+    "testsRegistered": 1,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false,
+    "passPercentClass": "success",
+    "pendingPercentClass": "danger"
+  },
+  "suites": {
+    "uuid": "b5cf1b6e-5bf2-474f-85e3-5865a1153f17",
+    "title": "",
+    "fullFile": "",
+    "file": "",
+    "beforeHooks": [],
+    "afterHooks": [],
+    "tests": [],
+    "suites": [
+      {
+        "uuid": "d347b698-2844-4ac8-bc16-1e25a689d992",
+        "title": "Add ",
+        "fullFile": "/Users/jsen/Documents/GitProjects/Test/react-test/test/Add.test.js",
+        "file": "/test/Add.test.js",
+        "beforeHooks": [
+          {
+            "title": "\"before all\" hook",
+            "fullTitle": "Add  \"before all\" hook",
+            "timedOut": false,
+            "duration": 1,
+            "pass": false,
+            "fail": false,
+            "pending": false,
+            "code": "console.log('before');",
+            "err": {},
+            "isRoot": false,
+            "uuid": "05a56a4f-8ee0-47d7-9f64-63f010f806e3",
+            "isHook": true,
+            "skipped": false
+          },
+          {
+            "title": "\"before each\" hook",
+            "fullTitle": "Add  \"before each\" hook",
+            "timedOut": false,
+            "duration": 0,
+            "pass": false,
+            "fail": false,
+            "pending": false,
+            "code": "console.log('beforeEach');",
+            "err": {},
+            "isRoot": false,
+            "uuid": "ac6e6c9e-9a95-4d83-b147-0cc0fa9c7677",
+            "isHook": true,
+            "skipped": false
+          }
+        ],
+        "afterHooks": [
+          {
+            "title": "\"after all\" hook",
+            "fullTitle": "Add  \"after all\" hook",
+            "timedOut": false,
+            "duration": 0,
+            "pass": false,
+            "fail": false,
+            "pending": false,
+            "code": "console.log('after');",
+            "err": {},
+            "isRoot": false,
+            "uuid": "16f632e7-d6b8-4280-a002-c35a3bcab479",
+            "isHook": true,
+            "skipped": false
+          },
+          {
+            "title": "\"after each\" hook",
+            "fullTitle": "Add  \"after each\" hook",
+            "timedOut": false,
+            "duration": 0,
+            "pass": false,
+            "fail": false,
+            "pending": false,
+            "code": "console.log('afterEach');",
+            "err": {},
+            "isRoot": false,
+            "uuid": "33aadadb-5a7c-4777-99d6-dd2f37c48341",
+            "isHook": true,
+            "skipped": false
+          }
+        ],
+        "tests": [
+          {
+            "title": "1+1=2",
+            "fullTitle": "Add  1+1=2",
+            "timedOut": false,
+            "duration": 1,
+            "state": "passed",
+            "speed": "fast",
+            "pass": true,
+            "fail": false,
+            "pending": false,
+            "code": "(0, _chai.expect)((0, _Add.add)(1, 1)).to.be.equal(2);",
+            "err": {},
+            "isRoot": false,
+            "uuid": "8dc114d7-ba27-41dd-9e57-0f74eb6c3c8c",
+            "isHook": false,
+            "skipped": false
+          }
+        ],
+        "suites": [],
+        "passes": [
+          "8dc114d7-ba27-41dd-9e57-0f74eb6c3c8c"
+        ],
+        "failures": [],
+        "pending": [],
+        "skipped": [],
+        "duration": 1,
+        "root": false,
+        "rootEmpty": false,
+        "_timeout": 5000
+      }
+    ],
+    "passes": [],
+    "failures": [],
+    "pending": [],
+    "skipped": [],
+    "duration": 0,
+    "root": true,
+    "rootEmpty": true,
+    "_timeout": 5000
+  },
+  "copyrightYear": 2018
+}
