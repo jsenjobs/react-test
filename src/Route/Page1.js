@@ -19,6 +19,10 @@ class Page1 extends Component {
                 <RefTest />
             </div>)
     }
+
+    routerWillLeave(nextLocation) {
+        alert('will go to ' + nextLocation)
+    }
 }
 
 export default Page1

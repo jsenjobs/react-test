@@ -1,3 +1,4 @@
 import fetchGets from './Test'
+import getsJson from './GetsJson'
 
-export {fetchGets}
+export {fetchGets, getsJson}

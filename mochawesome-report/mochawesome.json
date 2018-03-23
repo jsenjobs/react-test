@@ -1,14 +1,14 @@
 {
   "stats": {
-    "suites": 1,
-    "tests": 1,
-    "passes": 1,
+    "suites": 4,
+    "tests": 7,
+    "passes": 7,
     "pending": 0,
     "failures": 0,
-    "start": "2018-03-22T04:55:40.740Z",
-    "end": "2018-03-22T04:55:40.748Z",
-    "duration": 8,
-    "testsRegistered": 1,
+    "start": "2018-03-23T00:40:15.200Z",
+    "end": "2018-03-23T00:40:15.247Z",
+    "duration": 47,
+    "testsRegistered": 7,
     "passPercent": 100,
     "pendingPercent": 0,
     "other": 0,
@@ -19,7 +19,7 @@
     "pendingPercentClass": "danger"
   },
   "suites": {
-    "uuid": "b5cf1b6e-5bf2-474f-85e3-5865a1153f17",
+    "uuid": "84eac570-593d-46b3-8091-93bf064259b6",
     "title": "",
     "fullFile": "",
     "file": "",
@@ -28,7 +28,7 @@
     "tests": [],
     "suites": [
       {
-        "uuid": "d347b698-2844-4ac8-bc16-1e25a689d992",
+        "uuid": "43ad0849-e49c-4999-8805-b16163051864",
         "title": "Add ",
         "fullFile": "/Users/jsen/Documents/GitProjects/Test/react-test/test/Add.test.js",
         "file": "/test/Add.test.js",
@@ -44,7 +44,7 @@
             "code": "console.log('before');",
             "err": {},
             "isRoot": false,
-            "uuid": "05a56a4f-8ee0-47d7-9f64-63f010f806e3",
+            "uuid": "49543762-9bee-4232-ab69-2c87397f1b59",
             "isHook": true,
             "skipped": false
           },
@@ -59,7 +59,7 @@
             "code": "console.log('beforeEach');",
             "err": {},
             "isRoot": false,
-            "uuid": "ac6e6c9e-9a95-4d83-b147-0cc0fa9c7677",
+            "uuid": "b9d1e81a-6ac5-4162-b20a-28e1fedfd56e",
             "isHook": true,
             "skipped": false
           }
@@ -76,7 +76,7 @@
             "code": "console.log('after');",
             "err": {},
             "isRoot": false,
-            "uuid": "16f632e7-d6b8-4280-a002-c35a3bcab479",
+            "uuid": "06ab11df-43f8-475f-bb23-1a8c7100c864",
             "isHook": true,
             "skipped": false
           },
@@ -84,14 +84,14 @@
             "title": "\"after each\" hook",
             "fullTitle": "Add  \"after each\" hook",
             "timedOut": false,
-            "duration": 0,
+            "duration": 1,
             "pass": false,
             "fail": false,
             "pending": false,
             "code": "console.log('afterEach');",
             "err": {},
             "isRoot": false,
-            "uuid": "33aadadb-5a7c-4777-99d6-dd2f37c48341",
+            "uuid": "20e722dc-c8d4-4ff5-b66d-b73ac4fb90b5",
             "isHook": true,
             "skipped": false
           }
@@ -110,14 +110,182 @@
             "code": "(0, _chai.expect)((0, _Add.add)(1, 1)).to.be.equal(2);",
             "err": {},
             "isRoot": false,
-            "uuid": "8dc114d7-ba27-41dd-9e57-0f74eb6c3c8c",
+            "uuid": "7f8f3d2f-cc8d-4147-b650-c16d190177e6",
             "isHook": false,
             "skipped": false
           }
         ],
         "suites": [],
         "passes": [
-          "8dc114d7-ba27-41dd-9e57-0f74eb6c3c8c"
+          "7f8f3d2f-cc8d-4147-b650-c16d190177e6"
+        ],
+        "failures": [],
+        "pending": [],
+        "skipped": [],
+        "duration": 1,
+        "root": false,
+        "rootEmpty": false,
+        "_timeout": 5000
+      },
+      {
+        "uuid": "201996f6-04f8-4bb4-a15c-42b4c66b73e8",
+        "title": "sqrt",
+        "fullFile": "/Users/jsen/Documents/GitProjects/Test/react-test/test/Sqrt.test.js",
+        "file": "/test/Sqrt.test.js",
+        "beforeHooks": [],
+        "afterHooks": [],
+        "tests": [
+          {
+            "title": "参数为负值时应该报错",
+            "fullTitle": "sqrt 参数为负值时应该报错",
+            "timedOut": false,
+            "duration": 1,
+            "state": "passed",
+            "speed": "fast",
+            "pass": true,
+            "fail": false,
+            "pending": false,
+            "code": "(0, _chai.expect)(function () {\n    (0, _Sqrt.sqrt)(-1);\n}).to.throw(\"负值没有平方根\");",
+            "err": {},
+            "isRoot": false,
+            "uuid": "40a9a3e9-584e-4ff0-bc9c-ce2144013731",
+            "isHook": false,
+            "skipped": false
+          },
+          {
+            "title": "4的平方根应该等于2",
+            "fullTitle": "sqrt 4的平方根应该等于2",
+            "timedOut": false,
+            "duration": 0,
+            "state": "passed",
+            "speed": "fast",
+            "pass": true,
+            "fail": false,
+            "pending": false,
+            "code": "(0, _chai.expect)((0, _Sqrt.sqrt)(4)).to.equal(2);",
+            "err": {},
+            "isRoot": false,
+            "uuid": "0615cfa0-3162-4994-a2d3-4a1a4bf2532e",
+            "isHook": false,
+            "skipped": false
+          }
+        ],
+        "suites": [],
+        "passes": [
+          "40a9a3e9-584e-4ff0-bc9c-ce2144013731",
+          "0615cfa0-3162-4994-a2d3-4a1a4bf2532e"
+        ],
+        "failures": [],
+        "pending": [],
+        "skipped": [],
+        "duration": 1,
+        "root": false,
+        "rootEmpty": false,
+        "_timeout": 5000
+      },
+      {
+        "uuid": "3185641c-646b-4f88-975f-ee0f7e842145",
+        "title": "Dom测试 RefTest",
+        "fullFile": "/Users/jsen/Documents/GitProjects/Test/react-test/test/dom.test.js",
+        "file": "/test/dom.test.js",
+        "beforeHooks": [],
+        "afterHooks": [],
+        "tests": [
+          {
+            "title": "RefTest's input shoult be text",
+            "fullTitle": "Dom测试 RefTest RefTest's input shoult be text",
+            "timedOut": false,
+            "duration": 1,
+            "state": "passed",
+            "speed": "fast",
+            "pass": true,
+            "fail": false,
+            "pending": false,
+            "code": "(0, _chai.expect)(instance.findByType('input').props.type).to.eq('text');",
+            "err": {},
+            "isRoot": false,
+            "uuid": "d77aa357-5f70-4df2-b3aa-648fe2239433",
+            "isHook": false,
+            "skipped": false
+          },
+          {
+            "title": "RefTest's h1 shoult be Refs test",
+            "fullTitle": "Dom测试 RefTest RefTest's h1 shoult be Refs test",
+            "timedOut": false,
+            "duration": 0,
+            "state": "passed",
+            "speed": "fast",
+            "pass": true,
+            "fail": false,
+            "pending": false,
+            "code": "(0, _chai.expect)(instance.findAllByType('h1')[0].props.children).to.eq('Refs test');\n(0, _chai.expect)(instance.findAllByType('h1')[1].props.children).to.eq('Refs test1');",
+            "err": {},
+            "isRoot": false,
+            "uuid": "1575203f-926b-4015-badd-2ac2d947cd91",
+            "isHook": false,
+            "skipped": false
+          },
+          {
+            "title": "RefTest's button value should be getValue",
+            "fullTitle": "Dom测试 RefTest RefTest's button value should be getValue",
+            "timedOut": false,
+            "duration": 0,
+            "state": "passed",
+            "speed": "fast",
+            "pass": true,
+            "fail": false,
+            "pending": false,
+            "code": "(0, _chai.expect)(instance.findByType('button').props.children).to.eq('getValue');",
+            "err": {},
+            "isRoot": false,
+            "uuid": "9e93013a-b21b-414c-8fff-6449102cd3a7",
+            "isHook": false,
+            "skipped": false
+          }
+        ],
+        "suites": [],
+        "passes": [
+          "d77aa357-5f70-4df2-b3aa-648fe2239433",
+          "1575203f-926b-4015-badd-2ac2d947cd91",
+          "9e93013a-b21b-414c-8fff-6449102cd3a7"
+        ],
+        "failures": [],
+        "pending": [],
+        "skipped": [],
+        "duration": 1,
+        "root": false,
+        "rootEmpty": false,
+        "_timeout": 5000
+      },
+      {
+        "uuid": "8224419c-977f-4727-8eb6-b5d7c4a464a2",
+        "title": "VDom测试 RefTest",
+        "fullFile": "/Users/jsen/Documents/GitProjects/Test/react-test/test/vdom.test.js",
+        "file": "/test/vdom.test.js",
+        "beforeHooks": [],
+        "afterHooks": [],
+        "tests": [
+          {
+            "title": "RefTest's title should be Refs test",
+            "fullTitle": "VDom测试 RefTest RefTest's title should be Refs test",
+            "timedOut": false,
+            "duration": 1,
+            "state": "passed",
+            "speed": "fast",
+            "pass": true,
+            "fail": false,
+            "pending": false,
+            "code": "var app = shallowRender(_RefTest2.default);\n(0, _chai.expect)(app.props.children[0].type).to.equal('h1');\n(0, _chai.expect)(app.props.children[0].props.children).to.equal('Refs test');",
+            "err": {},
+            "isRoot": false,
+            "uuid": "febdb2b2-3820-4270-825a-a3bbae7143f2",
+            "isHook": false,
+            "skipped": false
+          }
+        ],
+        "suites": [],
+        "passes": [
+          "febdb2b2-3820-4270-825a-a3bbae7143f2"
         ],
         "failures": [],
         "pending": [],
