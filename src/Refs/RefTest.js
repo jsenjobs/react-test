@@ -1,4 +1,6 @@
 import React, {Component} from 'react'
+import { Button, Input } from 'antd';
+import 'antd/dist/antd.css'
 
 // 测试ref
 class RefTest extends Component {
@@ -11,13 +13,13 @@ class RefTest extends Component {
         return <div>
             <h1>Refs test</h1>
             <h1>Refs test1</h1>
-            <input ref={input => this.domInput = input} type='text' />
-            <button onClick={this.getValueClick} >getValue</button>
+            <Input ref={input => this.domInput = input} type='text' />
+            <Button onClick={this.getValueClick} type='primary'>getValue</Button>
         </div>
     }
 
     getValueClick() {
-        alert(this.domInput.value)
+        alert(this.domInput.input.value)
     }
     /*
     getValueClick  = () => {

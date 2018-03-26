@@ -11,8 +11,8 @@ class ParentTimer extends Component {
     }
     render() {
         return (<div>
-            <h1>ParentTimer</h1>
-            <h2>Current Time is {this.state.time.toLocaleTimeString()}</h2>
+            <h1>Use react state and props</h1>
+            <h2>ParentTimer Current Time is {this.state.time.toLocaleTimeString()}</h2>
             <ChildTimer date={this.state.time} />
         </div>)
     }
@@ -20,7 +20,7 @@ class ParentTimer extends Component {
     componentDidMount() {
         this.timerID = setInterval(_=>{
             this.setState({time:new Date()})
-        })
+        }, 1000)
     }
 
     componentWillUnmount() {

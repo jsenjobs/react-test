@@ -1,4 +1,9 @@
 import React, {Component} from 'react'
+import {Button} from 'antd'
+import 'antd/dist/antd.css'
+
+import {connect} from 'react-redux'
+import {account} from '../Api'
 
 function ShowLoginState(props) {
     return (<div>
@@ -9,8 +14,8 @@ function ShowLoginState(props) {
 
 function ShowLoginButton(props) {
     return (<div>
-            {props.isLogin && (<button onClick={props.click}>Logout</button>)}
-            {!props.isLogin && (<button onClick={props.click}>Login</button>)}
+            {props.isLogin && (<Button  type="primary" onClick={props.click}>Logout</Button>)}
+            {!props.isLogin && (<Button  type="primary" onClick={props.click}>Login</Button>)}
         </div>)
 }
 
@@ -22,19 +27,36 @@ class LoginState extends Component {
     }
 
     render() {
+        const {httpResult, loginState} = this.props
 
         return (<div>
-            <ShowLoginState isLogin={this.state.isLogin} />
-            <ShowLoginButton isLogin={this.state.isLogin} click={this.handleClick} />
+            <ShowLoginState isLogin={loginState} />
+            <ShowLoginButton isLogin={loginState} click={this.handleClick} />
+            <h2>httpResult:{JSON.stringify(httpResult)}</h2>
         </div>)
 
     }
 
     handleClick = () => {
-        this.setState(preState => ({
-            isLogin:!preState.isLogin
-        }))
+        if(this.props.loginState) {
+            this.props.logout()
+        } else {
+            this.props.login()
+        }
     }
 }
 
-export default LoginState
+function mapStateToProps(state) {
+    return {
+      httpResult: state.httpResult,
+      loginState: state.loginState
+    }
+  }
+  function mapDispatchToProps(dispatch) {
+    return {
+      login: () => dispatch(account.login(dispatch)),
+      logout: () => dispatch({type:'LOGOUT'}),
+    }
+  }
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginState)

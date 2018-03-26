@@ -38,10 +38,12 @@ class PageEcharts extends Component {
 
     render() {
         return (<div>
-            <EChartsWithHttp />
             <Row>
             <Col span={12}><div id="main" style={{height: 400 }} /></Col>
             <Col span={12}><div id="main1" style={{height: 400 }} /></Col>
+            </Row>
+            <Row>
+            <Col span={12}><EChartsWithHttp /></Col>
             </Row>
             </div>)
     }

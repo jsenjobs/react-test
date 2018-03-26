@@ -1,14 +1,17 @@
 // @flow
-import {Layout, Menu, Breadcrumb, Icon} from 'antd'
+import {Layout, Menu, Breadcrumb, Icon, Dropdown} from 'antd'
 import 'antd/dist/antd.css'
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {connect} from 'react-redux'
 
-import RouteTest from './Route/RouteTest';
+// import RouteTest from './Route/RouteTest';
 import PageEcharts from './Route/PageEcharts';
 import Page1 from './Route/Page1';
 import Page2 from './Route/Page2';
+import Editor from './group1/Editor'
+import { withCookies } from 'react-cookie';
 
 // we could use hashrouter or browserRouter
 // hashs router : /#/page1 /#/page2 // if the web point is static resource more
@@ -24,8 +27,9 @@ const {SubMenu} = Menu
 
 function PathIndex(props) {
     const paths = props.item.split('/')
-    return paths.map(path => <Breadcrumb.Item>{path}</Breadcrumb.Item>)
+    return <Breadcrumb style={{margin:'12px 0'}}>{paths.map(path => <Breadcrumb.Item key={path}>{path}</Breadcrumb.Item>)}</Breadcrumb>
 }
+
 
 class Main extends Component {
   constructor(props) {
@@ -33,7 +37,7 @@ class Main extends Component {
     this.state = {
       collapsed: false,
       mode: 'inline',
-      defaultSelectedKeys:['/page1/page1']
+      defaultSelectedKeys:['/main/charts']
     }
     this.toggle = this.toggle.bind(this)
     this.contentChanged = this.contentChanged.bind(this)
@@ -46,16 +50,45 @@ class Main extends Component {
   }
   contentChanged(e) {
     this.props.history.push(e.key)
+    this.setState({
+        defaultSelectedKeys: [e.key]
+    })
     // alert('contentChanged changed' + e.key)
   }
 
   componentWillReceiveProps(props) {
+    /*
+    alert('change')
       this.setState({
           defaultSelectedKeys: [props.location.pathname]
       })
+      */
+  }
+
+  logout = () => {
+    const {cookies} = this.props
+    cookies.remove('_userName')
+    cookies.remove('_password')
+    this.props.logout()
+    this.props.history.push('/login')
   }
 
   render() {
+    const l1 = [{key:'/main/charts', icon:'pie-chart', title:'图表'}, 
+    {key:'/main/page1', icon:'desktop', title:'测试1'}, 
+    {key:'/main/page2', icon:'inbox', title:'Redux'}]
+    const l2_1 = [{key:'/main/g1/editor', title:'编辑器'}, 
+      {key:'/main/g1/page1', title:'Option 6'}, 
+      {key:'/main/g1/page2', title:'Option 7'}, 
+      {key:'/main/g1/page3', title:'Option 8'}]
+    const l2_2 = [{key:'/main/g2/charts1', title:'Option 9'}, 
+      {key:'/main/g2/page6', title:'Option 10'}]
+    const l3 = [{key:'/main/g2/s1/charts1', title:'Option 11'}, 
+      {key:'/main/g2/s1/page6', title:'Option 12'}]
+    const Comp1 = l1.map(d => (<Menu.Item key={d.key}><Icon type={d.icon} /><span>{d.title}</span></Menu.Item>))
+    const Comp2 = l2_1.map(d => (<Menu.Item key={d.key}>{d.title}</Menu.Item>))
+    const Comp3 = l2_2.map(d => (<Menu.Item key={d.key}>{d.title}</Menu.Item>))
+    const Comp4 = l3.map(d => (<Menu.Item key={d.key}>{d.title}</Menu.Item>))
     return (
       <Layout>
         <Sider trigger={null}
@@ -73,30 +106,15 @@ class Main extends Component {
           inlineCollapsed={this.state.collapsed}
           onSelect={this.contentChanged}
         >
-          <Menu.Item key="/charts">
-            <Icon type="pie-chart" />
-            <span>图表</span>
-          </Menu.Item>
-          <Menu.Item key="/page2/page2">
-            <Icon type="desktop" />
-            <span>Option 2</span>
-          </Menu.Item>
-          <Menu.Item key="/page1/page1">
-            <Icon type="inbox" />
-            <span>Option 3</span>
-          </Menu.Item>
-          <SubMenu key="sub1" title={<span><Icon type="mail" /><span>Navigation One</span></span>}>
-            <Menu.Item key="/g1/page1">Option 5</Menu.Item>
-            <Menu.Item key="/g1/page2">Option 6</Menu.Item>
-            <Menu.Item key="/g1/page3">Option 7</Menu.Item>
-            <Menu.Item key="/g1/page4">Option 8</Menu.Item>
+        {Comp1}
+
+          <SubMenu key="sub1" title={<span><Icon type="mail" /><span>组1</span></span>}>
+            {Comp2}
           </SubMenu>
           <SubMenu key="sub2" title={<span><Icon type="appstore" /><span>Navigation Two</span></span>}>
-            <Menu.Item key="/g2/page1">Option 9</Menu.Item>
-            <Menu.Item key="/g2/page2">Option 10</Menu.Item>
+            {Comp3}
             <SubMenu key="sub3" title="Submenu">
-              <Menu.Item key="/g2/s1/page1">Option 11</Menu.Item>
-              <Menu.Item key="/g2/s1/page2">Option 12</Menu.Item>
+              {Comp4}
             </SubMenu>
           </SubMenu>
         </Menu>
@@ -110,7 +128,15 @@ class Main extends Component {
           </span>
           <span style={{color:'#fff', paddingLeft:'2%', fontSize:'1.4em'}}>Information Management System</span>
           <span style={{color:'#fff', float:'right', paddingLeft:'1%'}}>
+          <Dropdown overlay={(
+            <Menu>
+              <Menu.Item>
+                <div onClick={this.logout}>Logout</div>
+              </Menu.Item>
+            </Menu>
+          )} placement="bottomRight">
             <img src={logo} className="App-logo" alt="logo" />
+          </Dropdown>
           </span>
           <Menu
             theme="dark"
@@ -124,21 +150,29 @@ class Main extends Component {
           </Menu>
           </Header>
           <Content style={{margin:'0 16px', overflow: 'initial'}}>
-            <Breadcrumb style={{margin:'12px 0'}}>
-                <PathIndex item={this.state.defaultSelectedKeys[0]} />
-            </Breadcrumb>
+            <PathIndex item={this.state.defaultSelectedKeys[0]} />
             <div style={{ padding: 24, background: '#fff', minHeight: 780 }}>
-              <div>
+
+              <Switch>
+                <Route exact path='/main'  >
+                  <Redirect to='/main/charts' />
+                </Route>
+                <Route path='/main/charts' component={PageEcharts} />
+                <Route path='/main/page1' component={Page1} />
+                <Route path='/main/page2' component={Page2} />
+                <Route path='/main/g1/editor' component={Editor} />
+              </Switch>
+                {/*
                 <RouteTest />
                   <Switch>
-                    <Route exact path='/' /*  route path /path0 will fit /path0 /path0/xxxx and more if want only fit /path0 use exact(={true}) props*/ >
-                      <Redirect to='/page1/page1' />
+                    // route path /path0 will fit /path0 /path0/xxxx and more if want only fit /path0 use exact(={true}) props
+                    <Route exact path='/main'  >
+                      <Redirect to='/main/charts' />
                     </Route>
-                    <Route path='/charts' component={PageEcharts} />
-                    <Route path='/page1/:name' component={Page1} />
-                    <Route path='/page2/:name' component={Page2} />
+                    <Route path='/main/page1' component={Page1} />
+                    <Route path='/main/page2' component={Page2} />
                   </Switch>
-                </div>
+                  */}
             </div>
           </Content>
           <Footer style={{ textAlign: 'center' }}>
@@ -152,4 +186,13 @@ class Main extends Component {
   }
 }
 
-export default withRouter(Main);
+function mapStateToProps(state) {
+  return {
+  }
+}
+function mapDispatchToProps(dispatch) {
+  return {
+    logout: () => dispatch({type:'LOGOUT'}),
+  }
+}
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(withCookies(Main)))

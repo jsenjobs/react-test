@@ -7,7 +7,7 @@ class RClock extends Component {
       const {clock} = this.props
         return (
             <div>
-                Current time is {clock.toLocaleTimeString()}
+                Clock use redux, Current time is {clock.toLocaleTimeString()}
             </div>
         )
     }

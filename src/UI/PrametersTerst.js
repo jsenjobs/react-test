@@ -1,4 +1,6 @@
 import React, {Component} from 'react'
+import { Button } from 'antd';
+import 'antd/dist/antd.css'
 
 // 测试事件中的参数传递
 class ParametersTest extends Component {
@@ -14,11 +16,11 @@ class ParametersTest extends Component {
 
     render() {
         return <div>
-            <button onClick={this.toggle}>
+            <Button onClick={this.toggle} type='danger' ghost>
             {this.state.ToggleON?'ON':'OFF'}
-            </button>
-            <button onClick={e => {this.eventA('p1', 'p2', e)}} >BT1</button>
-            <button onClick={this.eventA.bind(this, 'p3', 'p4')} >BT2</button>
+            </Button>
+            <Button onClick={e => {this.eventA('p1', 'p2', e)}}  type='danger' ghost>BT1</Button>
+            <Button onClick={this.eventA.bind(this, 'p3', 'p4')}  type='danger' ghost>BT2</Button>
         </div>
     }
 

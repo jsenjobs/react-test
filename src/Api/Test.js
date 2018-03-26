@@ -1,5 +1,4 @@
 const fetchGets = (dispatch, page) => {
-  alert(page)
   dispatch({type:'FETCH_GET_REQUEST'})
 
   return fetch('http://gank.io/api/search/query/listview/category/福利/count/10/page/' + page, {

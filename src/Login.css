@@ -1,0 +1,27 @@
+.login-form {
+    width: 400px;
+}
+.login-form-button {
+    width: 100%;
+}
+
+.box {
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    height: 100%;
+}
+.box-v {
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
+}
+.box-item {
+    flex:1;
+}
+.ant-layout {
+    height: 100%;
+}
+#root {
+    height: 100%;
+}

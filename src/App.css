@@ -25,3 +25,7 @@
 .ant-layout-sider-collapsed .nav-text {
   display: none;
 }
+
+.ant-dropdown-menu-item {
+  display: block !important;
+}

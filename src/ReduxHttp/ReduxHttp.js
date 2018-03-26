@@ -1,4 +1,6 @@
 import React, {Component} from 'react'
+import { Button, Modal } from 'antd';
+import 'antd/dist/antd.css'
 import 'whatwg-fetch'
 import {connect} from 'react-redux'
 import {fetchGets as fg} from '../Api'
@@ -10,7 +12,7 @@ class ReduxHttp extends Component {
   }
 
   render() {
-    const {httpResult, onGetHttp} = this.props
+    const {httpResult} = this.props
     let data = ""
     if(httpResult.code === 0) {
       data = '正在获取数据'
@@ -23,12 +25,27 @@ class ReduxHttp extends Component {
     }
     return (<div>
       <input type='text' value={this.state.page} onChange={this.changePage} />
-      <button onClick={onGetHttp.bind(this, this.state.page)}>GetHttp</button>
+      <Button onClick={this.info.bind(this, this.state.page)} type='primary'>GetHttp</Button>
       <div>{data}</div>
       </div>)
   }
   changePage = (e) => {
     this.setState({page:e.target.value})
+  }
+
+  info(page) {
+    const {onGetHttp} = this.props
+    Modal.info({
+      title: '参数提示',
+      content: (
+        <div>
+          {page}
+        </div>
+      ),
+      onOk() {
+        onGetHttp(page)
+      },
+    });
   }
 }
 
