@@ -1,7 +1,5 @@
 import React, {Component} from 'react'
 import {Row, Col} from 'antd'
-// 引入 ECharts 主模块
-import echarts from 'echarts/lib/echarts';
 // 引入柱状图
 import  'echarts/lib/chart/bar';
 import  'echarts/lib/chart/line';
@@ -9,40 +7,37 @@ import  'echarts/lib/chart/line';
 import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/title';
 
-import data from './data/Edata'
-
-import EChartsWithHttp from './EchartsHttpData'
+import EChartsWithHttp from './echarts/EchartsHttpData'
+import Simple001 from './echarts/Simple001'
+import Simple002 from './echarts/Simple002'
+import Simple003 from './echarts/Simple003'
+import Simple004 from './echarts/Simple004'
+import Simple005 from './echarts/Simple005'
+import Simple006 from './echarts/Simple006'
+import Simple0011 from './d3/Simple001'
+// import Simple007 from './echarts/Simple007'
 
 class PageEcharts extends Component {
 
     componentDidMount() {
-        
-        // 基于准备好的dom，初始化echarts实例
-        var myChart = echarts.init(document.getElementById('main'));
-        // 绘制图表
-        myChart.setOption({
-            title: { text: 'ECharts图表' },
-            tooltip: {},
-            xAxis: {
-                data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
-            },
-            yAxis: {},
-            series: [{
-                name: '销量',
-                type: 'bar',
-                data: [5, 20, 36, 10, 10, 20]
-            }]
-        });
-        echarts.init(document.getElementById('main1')).setOption(data.charts1)
     }
 
     render() {
         return (<div>
             <Row>
-            <Col span={12}><div id="main" style={{height: 400 }} /></Col>
-            <Col span={12}><div id="main1" style={{height: 400 }} /></Col>
+            <Col span={12}><Simple001/></Col>
+            <Col span={12}><Simple002 /></Col>
             </Row>
             <Row>
+            <Col span={12}><Simple003/></Col>
+            <Col span={12}><Simple004 /></Col>
+            </Row>
+            <Row>
+            <Col span={12}><Simple005 /></Col>
+            <Col span={12}><Simple006 /></Col>
+            </Row>
+            <Row>
+            <Col span={12}><Simple0011 /></Col>
             <Col span={12}><EChartsWithHttp /></Col>
             </Row>
             </div>)

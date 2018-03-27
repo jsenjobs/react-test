@@ -12,7 +12,7 @@ class StateSelect extends Component {
     componentDidMount() {
         const {loginState} = this.props
         if(!loginState) {
-            this.props.history.push('/login')
+            // this.props.history.push('/login')
         }
     }
     render() {

@@ -4,8 +4,11 @@
   "private": true,
   "dependencies": {
     "antd": "^3.3.1",
+    "d3": "^5.0.0",
     "echarts": "^4.0.4",
+    "echarts-for-react": "^2.0.8",
     "es6-promise": "^4.2.4",
+    "gojs": "^1.8.16",
     "js-md5": "^0.7.3",
     "react": "^16.2.0",
     "react-cookie": "^2.1.4",
