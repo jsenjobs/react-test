@@ -2,9 +2,11 @@ import React, {Component } from 'react'
 import * as d3 from 'd3'
 import * as d3Tip from 'd3-tip'
 import PropTypes from 'prop-types'
-class Simple001 extends Component {
+class Simple004 extends Component {
     componentDidMount() {
-        this.renderD3()
+        setTimeout(_ => {
+            this.renderD3()
+        }, 50)
     }
     render() {
         return (<div className="bar-chart--simple">
@@ -121,13 +123,13 @@ class Simple001 extends Component {
 
     }
 }
-Simple001.propTypes = {
+Simple004.propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape({
         letter:PropTypes.string.isRequired,
         frequency:PropTypes.number.isRequired
     }).isRequired).isRequired,
 }
-Simple001.defaultProps = {data:[
+Simple004.defaultProps = {data:[
     { letter: "一", frequency: 0.08167 },
     { letter: "二", frequency: 0.13492 },
     { letter: "三", frequency: 0.02782 },
@@ -136,4 +138,4 @@ Simple001.defaultProps = {data:[
     { letter: "六", frequency: 0.02288 },
     { letter: "日", frequency: 0.22288 }
 ]}
-export default Simple001
+export default Simple004

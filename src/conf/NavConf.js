@@ -10,27 +10,36 @@ const {SubMenu} = Menu
 
 const navItems = [
     {key:'/main/charts', icon:'pie-chart', title:'ECharts', component:$.PageEcharts},
+    {key:'sub1', icon:'pie-chart', title:'D3.js', children:[
+        {key:'/main/dg/d3/simple1', title:'Simple1', component:$.UMLD3Simple001}, 
+        {key:'/main/dg/d3/simple2', title:'Simple2', component:$.UMLD3Simple002}, 
+        {key:'/main/dg/d3/simple3', title:'Simple3', component:$.UMLD3Simple003}, 
+        {key:'/main/dg/d3/simple4', title:'柱状图', component:$.UMLD3Simple004}, 
+        {key:'/main/dg/d3/simple5', title:'面积图', component:$.UMLD3Simple005}, 
+        {key:'/main/dg/d3/simple6', title:'饼图', component:$.UMLD3Simple006}, 
+        {key:'/main/dg/d3/simple7', title:'径向堆栈柱状图', component:$.UMLD3Simple007}, 
+        {key:'/main/dg/d3/simple8', title:'单弦图', component:$.UMLD3Simple008}, 
+        {key:'/main/dg/d3/simple9', title:'打包图', component:$.UMLD3Simple009}, 
+        {key:'/main/dg/d3/simple10', title:'雷达图', component:$.UMLD3Simple0010}, 
+        {key:'/main/dg/d3/simple11', title:'力导向图', component:$.UMLD3Simple0011}, 
+        {key:'/main/dg/d3/simple12', title:'中国地图', component:$.UMLD3Simple0012}
+    ]},
     {key:'/main/d3', icon:'pie-chart', title:'D3', component:$.D3Charts}, 
     {key:'/main/page1', icon:'desktop', title:'测试1', component:$.Page1}, 
     {key:'/main/page2', icon:'inbox', title:'Redux', component:$.Page2},
-    {key:'sub1', icon:'maile', title:'组1',children:[
+    {key:'sub2', icon:'maile', title:'组1',children:[
         {key:'/main/g1/editor', title:'编辑器', component: $.Editor}, 
         {key:'/main/g1/page1', title:'Option 6'}, 
         {key:'/main/g1/page2', title:'Option 7'}, 
         {key:'/main/g1/page3', title:'Option 8'}
     ]},
-    {key:'sub2', icon:'appstore', title:'DG',children:[
+    {key:'sub3', icon:'appstore', title:'DG',children:[
         {key:'/main/dg/charts1', title:'Option 9'}, 
         {key:'/main/dg/page6', title:'otion 10'},
         {key:'ssub1', title:'GOJS', children:[
             {key:'/main/dg/gojs/simple1', title:'Simple1', component:$.UMLGOJSSimple1}, 
             {key:'/main/dg/gojs/simple2', title:'Simple2', component:$.UMLGOJSSimple2}, 
             {key:'/main/dg/gojs/simple3', title:'Simple3', component:$.UMLGOJSSimple3}
-        ]},
-        {key:'ssub2', title:'D3', children:[
-            {key:'/main/dg/d3/simple1', title:'Simple1', component:$.UMLD3Simple001}, 
-            {key:'/main/dg/d3/simple2', title:'Simple2', component:$.UMLD3Simple002}, 
-            {key:'/main/dg/d3/simple3', title:'Simple3', component:$.UMLD3Simple003}
         ]}
     ]},
 ]

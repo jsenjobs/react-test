@@ -11,7 +11,7 @@ class Simple003 extends Component {
         return (<div id="main">
         <div id="sequence"></div>
         <div id="chart">
-          <div id="explanation" style="visibility: hidden;">
+          <div id="explanation" style={{visibility: 'hidden'}}>
             <span id="percentage"></span><br/>
             of visits begin with this sequence of pages
           </div>
@@ -280,7 +280,7 @@ class Simple003 extends Component {
 
         function toggleLegend() {
         var legend = d3.select("#legend");
-        if (legend.style("visibility") == "hidden") {
+        if (legend.style("visibility") === "hidden") {
             legend.style("visibility", "");
         } else {
             legend.style("visibility", "hidden");
@@ -309,7 +309,7 @@ class Simple003 extends Component {
         // Not yet at the end of the sequence; move down the tree.
             var foundChild = false;
             for (var k = 0; k < children.length; k++) {
-            if (children[k]["name"] == nodeName) {
+            if (children[k]["name"] === nodeName) {
                 childNode = children[k];
                 foundChild = true;
                 break;
