@@ -14,6 +14,7 @@ import Page2 from './Route/Page2';
 import Editor from './group1/Editor'
 import UMLGOJSSimple1 from './Route/DG/GOJS/Simple1'
 import UMLGOJSSimple2 from './Route/DG/GOJS/Simple2'
+import UMLGOJSSimple3 from './Route/DG/GOJS/Simple3'
 import { withCookies } from 'react-cookie';
 
 // we could use hashrouter or browserRouter
@@ -88,7 +89,8 @@ class Main extends Component {
     const l2_2 = [{key:'/main/dg/charts1', title:'Option 9'}, 
       {key:'/main/dg/page6', title:'otion 10'}]
     const l3 = [{key:'/main/dg/gojs/simple1', title:'Simple1'}, 
-      {key:'/main/dg/gojs/simple2', title:'Simple2'}]
+    {key:'/main/dg/gojs/simple2', title:'Simple2'}, 
+    {key:'/main/dg/gojs/simple3', title:'Simple3'}]
     const Comp1 = l1.map(d => (<Menu.Item key={d.key}><Icon type={d.icon} /><span>{d.title}</span></Menu.Item>))
     const Comp2 = l2_1.map(d => (<Menu.Item key={d.key}>{d.title}</Menu.Item>))
     const Comp3 = l2_2.map(d => (<Menu.Item key={d.key}>{d.title}</Menu.Item>))
@@ -168,6 +170,7 @@ class Main extends Component {
                 <Route path='/main/g1/editor' component={Editor} />
                 <Route path='/main/dg/gojs/simple1' component={UMLGOJSSimple1} />
                 <Route path='/main/dg/gojs/simple2' component={UMLGOJSSimple2} />
+                <Route path='/main/dg/gojs/simple3' component={UMLGOJSSimple3} />
               </Switch>
                 {/*
                 <RouteTest />

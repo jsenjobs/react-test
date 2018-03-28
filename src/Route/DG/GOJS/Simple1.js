@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 
 import go from 'gojs'
 
-const goObj = go.GraphObject.make
+const $ = go.GraphObject.make
 
 
 var nodeDataArray = [
@@ -48,12 +48,12 @@ class Simple1 extends Component {
     constructor(props) {
         super(props)
 
-        this.renderCanvas = this.renderCanvas.bind (this);
+        // this.renderCanvas = this.renderCanvas.bind (this);
 
         this.state = {myModel: null, myDiagram: null}
     }
 
-    renderCanvas() {
+    renderCanvas = () => {
         function FlatTreeLayout() {
             go.TreeLayout.call(this)
         }
@@ -74,34 +74,39 @@ class Simple1 extends Component {
             })
         }
 
-        let model = goObj(go.TreeModel)
-        let diagram = goObj(go.Diagram, this.refs.goJsDiv, {
+        let model = $(go.TreeModel)
+        let diagram = $(go.Diagram, this.goJsDiv, {
             allowCopy: false,
             allowDelete: false,
-            allowMove: false,
+            allowMove: true,
             initialContentAlignment: go.Spot.Center,
             initialAutoScale: go.Diagram.Uniform,
-            layout: goObj(FlatTreeLayout, {
+            layout: $(FlatTreeLayout, {
                 angle:90,compaction:go.TreeLayout.CompactionNone
             }),
             "undoManager.isEnabled": true
         })
 
-        diagram.nodeTemplate = goObj(go.Node, "Vertical",
-            {selectionObjectName: 'BODY'}, goObj(go.Panel, { name: "BODY" },
-            goObj(go.Shape, "RoundedRectangle",
-            new go.Binding("fill"),
-            new go.Binding("stroke")),
-            goObj(go.TextBlock,
-                { font: "bold 12pt Arial, sans-serif", margin: new go.Margin(4, 2, 2, 2) },
-                new go.Binding("text"))
+        diagram.nodeTemplate = $(go.Node, "Vertical", {selectionObjectName: 'BODY'},
+
+            $(go.Panel, { name: "BODY" },
+            
+                $(go.Shape, "RoundedRectangle",
+                new go.Binding("fill", "fill"),
+                new go.Binding("stroke", 'stroke')),
+
+                $(go.TextBlock,
+                    { font: "bold 20pt Arial, sans-serif", margin: new go.Margin(40, 20, 20, 20) },
+                    new go.Binding("text", 'text'))
+
             ),
-            goObj(go.Panel,  // this is underneath the "BODY"
-            { height: 15 },  // always this height, even if the TreeExpanderButton is not visible
-            goObj("TreeExpanderButton"))
+
+            $(go.Panel,  // this is underneath the "BODY"
+            { height: 15, width:15 },  // always this height, even if the TreeExpanderButton is not visible
+            $("TreeExpanderButton"))
         )
 
-        diagram.linkTemplate = goObj(go.Link, goObj(go.Shape, { strokeWidth: 1.5 }))
+        diagram.linkTemplate = $(go.Link, $(go.Shape, { strokeWidth: 1.5 }))
 
         this.setState({myModel: model, myDiagram: diagram},
         () => {
@@ -127,7 +132,7 @@ class Simple1 extends Component {
     }
 
     render() {
-        return (<div ref="goJsDiv" style={{'width': '500px', 'height': '500px', 'backgroundColor': '#DAE4E4'}} />)
+        return (<div ref={div => this.goJsDiv = div} style={{'width': '100%', 'height': '800px', 'backgroundColor': '#DAE4E4'}} />)
     }
 }
 

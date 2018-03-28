@@ -39,7 +39,7 @@ class Simple2 extends Component {
     }
 
     goRender = () => {
-        var diagram = new go.Diagram("myDiagramDiv");
+        var diagram = $(go.Diagram, 'myDiagramDiv', {}) // new go.Diagram("myDiagramDiv");
         diagram.model = new go.GraphLinksModel(
         [{ key: "Hello" },   // two node data, in an Array
         { key: "World!" }],
