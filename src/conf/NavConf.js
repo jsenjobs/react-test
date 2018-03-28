@@ -11,9 +11,9 @@ const {SubMenu} = Menu
 const navItems = [
     {key:'/main/charts', icon:'pie-chart', title:'ECharts', component:$.PageEcharts},
     {key:'sub1', icon:'pie-chart', title:'D3.js', children:[
-        {key:'/main/dg/d3/simple1', title:'Simple1', component:$.UMLD3Simple001}, 
-        {key:'/main/dg/d3/simple2', title:'Simple2', component:$.UMLD3Simple002}, 
-        {key:'/main/dg/d3/simple3', title:'Simple3', component:$.UMLD3Simple003}, 
+        {key:'/main/dg/d3/simple1', title:'简单实例', component:$.UMLD3Simple001}, 
+        {key:'/main/dg/d3/simple2', title:'力导向图1', component:$.UMLD3Simple002}, 
+        {key:'/main/dg/d3/simple3', title:'思维导图', component:$.UMLD3Simple003}, 
         {key:'/main/dg/d3/simple4', title:'柱状图', component:$.UMLD3Simple004}, 
         {key:'/main/dg/d3/simple5', title:'面积图', component:$.UMLD3Simple005}, 
         {key:'/main/dg/d3/simple6', title:'饼图', component:$.UMLD3Simple006}, 

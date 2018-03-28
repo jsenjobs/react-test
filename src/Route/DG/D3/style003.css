@@ -1,54 +1,23 @@
-#body {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 400;
-    background-color: #fff;
-    width: 960px;
-    height: 700px;
-    margin-top: 10px;
-  }
-#main {
-    float: left;
-    width: 750px;
-  }
-  
-  #sidebar {
-    float: right;
-    width: 100px;
-  }
-  
-  #sequence {
-    width: 600px;
-    height: 70px;
-  }
-  
-  #legend {
-    padding: 10px 0 0 3px;
-  }
-  
-  #sequence text, #legend text {
-    font-weight: 600;
-    fill: #fff;
-  }
-  
-  #chart {
-    position: relative;
-  }
-  
-  #chart path {
-    stroke: #fff;
-  }
-  
-  #explanation {
-    position: absolute;
-    top: 260px;
-    left: 305px;
-    width: 140px;
-    text-align: center;
-    color: #666;
-    z-index: -1;
-  }
-  
-  #percentage {
-    font-size: 2.5em;
-  }
+
+.node circle {
+  fill: #999;
+}
+
+.node text {
+  font: 10px sans-serif;
+}
+
+.node--internal circle {
+  fill: #555;
+}
+
+.node--internal text {
+  text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+}
+
+.link {
+  fill: none;
+  stroke: #555;
+  stroke-opacity: 0.4;
+  stroke-width: 1.5px;
+}
