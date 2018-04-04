@@ -4,6 +4,7 @@ import React from 'react'
 import {Route, Switch, Redirect} from 'react-router-dom';
 
 import $ from '../Route'
+import COM from '../component'
 
 
 const {SubMenu} = Menu
@@ -23,6 +24,9 @@ const navItems = [
         {key:'/main/dg/d3/simple10', title:'雷达图', component:$.UMLD3Simple0010}, 
         {key:'/main/dg/d3/simple11', title:'力导向图', component:$.UMLD3Simple0011}, 
         {key:'/main/dg/d3/simple12', title:'中国地图', component:$.UMLD3Simple0012}
+    ]},
+    {key:'ajax', icon:'pie-chart', title:'网络', children:[
+        {key:'/main/ajax/show/users', title:'用户List', component:COM.ShowUsers}
     ]},
     {key:'/main/d3', icon:'pie-chart', title:'D3', component:$.D3Charts}, 
     {key:'/main/page1', icon:'desktop', title:'测试1', component:$.Page1}, 

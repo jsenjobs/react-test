@@ -44,6 +44,6 @@
     "mochawesome": "^3.0.2",
     "react-test-renderer": "^16.2.0",
     "redux-devtools": "^3.4.1",
-    "typescript": "^2.7.2"
+    "typescript": "^2.8.1"
   }
 }
