@@ -1,7 +1,10 @@
-import { Menu, Icon} from 'antd'
+import { Menu, Icon, Card, Col} from 'antd'
 import React from 'react'
+import {Route, Switch, Redirect, Link} from 'react-router-dom';
 
-import {Route, Switch, Redirect} from 'react-router-dom';
+import {wrapAuth, wrapAuthPermission} from './UIAuth'
+
+import {uuid} from '../utils/UUID'
 
 import $ from '../Route'
 import COM from '../component'
@@ -10,7 +13,25 @@ import COM from '../component'
 const {SubMenu} = Menu
 
 const navItems = [
-    {key:'/main/charts', icon:'pie-chart', title:'ECharts', component:$.PageEcharts},
+    {key:'/main/dashboard', icon:'appstore', title:'主面板', component:COM.DashBoard, permissions:['sys:ui:dashboard']},
+    {key:'/main/resourcesearch', icon:'search', title:'搜索资源', component:COM.ResourceSearch, permissions:['sys:ui:resourcesearch'], showInDashBoard:true},
+    {key:'/model/edit', icon:'line-chart', title:'数据建模', component:COM.ModelEdit, permissions:['sys:ui:dataModel'], showInDashBoard:true},
+    {key:'/main/modeshare', icon:'bar-chart', title:'模型库', component:COM.ModelShare, permissions:['sys:ui:modelCenter'], showInDashBoard:true},
+    {key:'sys', icon:'setting', title:'系统管理', children:[
+        // {key:'/main/ajax/show/users', title:'用户List', component:COM.ShowUsers},
+        {key:'auth', title:'权限管理', children:[
+            {key:'/main/sys/auth/user', title:'用户管理', component:COM.User, permissions:['sys:ui:auth:user'], showInDashBoard:true}, 
+            {key:'/main/sys/auth/role', title:'角色管理', component:COM.Role, permissions:['sys:ui:auth:role'], showInDashBoard:true}, 
+            {key:'/main/sys/auth/permission', title:'权限管理', component:COM.Permission, permissions:['sys:ui:auth:permission'], showInDashBoard:true}, 
+            {key:'/main/sys/auth/api', title:'Api配置', component:COM.Api, permissions:['sys:ui:auth:api'], showInDashBoard:true}, 
+        ], permissions:['sys:ui:authMenu']},
+        {key:'data', title:'数据管理', children:[
+            {key:'/main/sys/data/table', title:'数据表管理', component:COM.TableManage, permissions:['sys:ui:data:table'], showInDashBoard:true}, 
+            {key:'/main/sys/data/topic', title:'主题管理', component:COM.Topic, permissions:['sys:ui:data:topic'], showInDashBoard:true}, 
+        ], permissions:['sys:ui:dataMenu']},
+        {key:'/main/sys/logs', title:'日志管理', component:COM.ShowUsers, permissions:['sys:ui:data:log'], showInDashBoard:true},
+    ], permissions:['sys:ui:system']},
+    {key:'/main/charts', icon:'pie-chart', title:'ECharts', component:$.PageEcharts, permissions:['sys:ui:dev']},
     {key:'sub1', icon:'pie-chart', title:'D3.js', children:[
         {key:'/main/dg/d3/simple1', title:'简单实例', component:$.UMLD3Simple001}, 
         {key:'/main/dg/d3/simple2', title:'力导向图1', component:$.UMLD3Simple002}, 
@@ -24,10 +45,8 @@ const navItems = [
         {key:'/main/dg/d3/simple10', title:'雷达图', component:$.UMLD3Simple0010}, 
         {key:'/main/dg/d3/simple11', title:'力导向图', component:$.UMLD3Simple0011}, 
         {key:'/main/dg/d3/simple12', title:'中国地图', component:$.UMLD3Simple0012}
-    ]},
-    {key:'ajax', icon:'pie-chart', title:'网络', children:[
-        {key:'/main/ajax/show/users', title:'用户List', component:COM.ShowUsers}
-    ]},
+    ], permissions:['sys:ui:dev']},
+    /*
     {key:'/main/d3', icon:'pie-chart', title:'D3', component:$.D3Charts}, 
     {key:'/main/page1', icon:'desktop', title:'测试1', component:$.Page1}, 
     {key:'/main/page2', icon:'inbox', title:'Redux', component:$.Page2},
@@ -46,23 +65,43 @@ const navItems = [
             {key:'/main/dg/gojs/simple3', title:'Simple3', component:$.UMLGOJSSimple3}
         ]}
     ]},
+    */
 ]
 
+function initPermissions(conf, headPermissions) {
+    conf.forEach(c => {
+        if(!c.permissions) c.permissions = []
+        c.permissions = [...c.permissions, ...headPermissions]
+        if(c.children) {
+            initPermissions(c.children, c.permissions)
+        }
+    })
+}
+initPermissions(navItems, [])
+const AuthSubMenu = wrapAuth(SubMenu)
+const AuthSubMenuItem = wrapAuth(Menu.Item)
+const AuthLink = wrapAuth(Link)
 function buildItem(item) {
     if(item.children) {
         let subs = buildComponents(item.children)
         if(item.icon) {
-            return (<SubMenu key={item.key} title={<span><Icon type={item.icon} /><span>{item.title}</span></span>}>
+            paths[item.key] = true
+            return (<AuthSubMenu permissions={item.permissions} key={item.key} title={<span><Icon type={item.icon} /><span>{item.title}</span></span>}>
             {subs}
-          </SubMenu>)
+          </AuthSubMenu>)
         } else {
-            return (<SubMenu key={item.key} title={item.title}>
+            paths[item.key] = true
+            return (<AuthSubMenu permissions={item.permissions} key={item.key} title={item.title}>
             {subs}
-          </SubMenu>)
+          </AuthSubMenu>)
         }
     } else {
-        if(item.icon) return (<Menu.Item key={item.key}><Icon type={item.icon} /><span>{item.title}</span></Menu.Item>)
-        return (<Menu.Item key={item.key}>{item.title}</Menu.Item>)
+        if(item.icon) {
+            paths[item.key] = true
+            return (<AuthSubMenuItem permissions={item.permissions} key={item.key}><Icon type={item.icon} /><span>{item.title}</span></AuthSubMenuItem>)
+        }
+        paths[item.key] = true
+        return (<AuthSubMenuItem permissions={item.permissions} key={item.key}>{item.title}</AuthSubMenuItem>)
     }
 }
 function buildComponents(confs) {
@@ -75,13 +114,15 @@ function buildRoutes(conf) {
     return conf.map(item => {
         if(item.children) {
             if(item.component) {
-                return buildRoutes(item.children) + (<Route key={item.key} path={item.key} component={item.component} />)
+                let AC = wrapAuthPermission(item.component, item.permissions, <div>正在加载权限</div>, <div>没有访问权限</div>)
+                return buildRoutes(item.children) + (<Route key={item.key} path={item.key} component={AC} />)
             } else {
                 return buildRoutes(item.children)
             }
         } else {
             if(item.component) {
-                return (<Route key={item.key} path={item.key} component={item.component} />)
+                let AC = wrapAuthPermission(item.component, item.permissions, <div>正在加载权限</div>, <div>没有访问权限</div>)
+                return (<Route key={item.key} path={item.key} component={AC} />)
             }
         }
         return null
@@ -90,10 +131,50 @@ function buildRoutes(conf) {
 function routes() {
     return (<Switch>
         <Route exact path='/main'  >
-          <Redirect to='/main/charts' />
+          <Redirect to='/main/dashboard' />
         </Route>
         {buildRoutes(navItems)}
+        <Route path='/main/sys/auth**'  >
+          <Redirect to='/main/sys/auth/user' />
+        </Route>
+        <Route path='/main/sys/data**'  >
+          <Redirect to='/main/sys/data/table' />
+        </Route>
+        <Route path='/main/sys**'  >
+          <Redirect to='/main/sys/auth/user' />
+        </Route>
+        <Route path='/main**'  >
+          <Redirect to='/main/dashboard' />
+        </Route>
+        <Route path='**'  >
+          <Redirect to='/main/dashboard' />
+        </Route>
       </Switch>)
 }
 
-export default {navConf:buildComponents(navItems), routes:routes()}
+let paths = {}
+function getKey(path, oldKey) {
+    if(paths[path]) {
+        return path
+    }
+    return oldKey
+}
+
+export default {navConf:buildComponents(navItems), routes:routes(), getKey: getKey}
+
+export function genDashFunctions() {
+    function getComponent(items) {
+        let cpmps = []
+        items.forEach(item => {
+            if(item.showInDashBoard) {
+                cpmps.push(<Col span="8"><AuthLink to={item.key} permissions={item.permissions}><Card>{item.title}</Card></AuthLink></Col>)
+            }
+            if(item.children) {
+                cpmps.push(...getComponent(item.children))
+            }
+        })
+        return cpmps
+    }
+
+    return getComponent(navItems)
+}

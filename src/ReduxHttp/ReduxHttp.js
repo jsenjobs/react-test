@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import { Button, Modal } from 'antd';
 import 'antd/dist/antd.css'
-import 'whatwg-fetch'
 import {connect} from 'react-redux'
 import {fetchGets as fg} from '../Api'
 class ReduxHttp extends Component {

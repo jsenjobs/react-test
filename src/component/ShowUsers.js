@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import Apis from '../Api/Apis'
+import {AFetch} from '../utils/AFetch'
 import {Table} from 'antd'
 
 function format(date, fmt)   
@@ -17,7 +18,7 @@ function format(date, fmt)
     fmt=fmt.replace(RegExp.$1, (date.getFullYear()+"").substr(4 - RegExp.$1.length));   
   for(var k in o)   
     if(new RegExp("("+ k +")").test(fmt))   
-  fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));   
+  fmt = fmt.replace(RegExp.$1, (RegExp.$1.length===1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));   
   return fmt;   
 }
 
@@ -28,7 +29,7 @@ const columns = [
     },
     {
         title:'Name', dataIndex:'name',key:'names',
-        render: text => (<a href='#'>{text}</a>)
+        render: text => (<a href=''>{text}</a>)
     },
     {
         title:'Sex', dataIndex:'sex',key:'sex'
@@ -50,7 +51,7 @@ class ShowUsers extends Component {
 
 
     componentDidMount() {
-        fetch(Apis.account.listAll).then(res => res.json()).then(json => {
+        AFetch(Apis.account.listAll).then(res => res.json()).then(json => {
             if(json.code === 0) {
                 let data = json.data.map(d => {
                     return {

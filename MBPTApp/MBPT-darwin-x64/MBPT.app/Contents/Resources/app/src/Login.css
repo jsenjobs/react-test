@@ -1,0 +1,64 @@
+.app-init .login-form {
+    width: 400px;
+}
+.app-init .login-form-button {
+    width: 100%;
+}
+
+.app-init .box {
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    height: 100%;
+    background: rgb(49, 71, 96);
+}
+.app-init .box-v {
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
+}
+.app-init .box-item {
+    flex:1;
+}
+.app-init .ant-layout {
+    height: 100%;
+}
+.app-init span {
+    color: #fff;
+}
+.app-init a {
+    color: #958c57;
+}
+.app-init .ant-input {
+    background-color: transparent;
+    color: #fff;
+}
+.app-init .anticon {
+    color: #fff;
+}
+#root {
+    height: 100%;
+}
+
+#app-init {
+    width: 100%;
+    height: 100%;
+    background: #314760;
+    display: flex;
+}
+.app-init {
+    width: 100%;
+    height: 100%;
+}
+#app-init .h-center {
+    display: flex;
+    flex-direction: column;
+}
+
+#app-init .hold {
+    flex:1;
+}
+
+#app-init .large {
+    height: 120px;
+}

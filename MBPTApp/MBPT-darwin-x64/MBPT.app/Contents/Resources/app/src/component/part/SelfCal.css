@@ -1,0 +1,63 @@
+.sel-cal-modal .item-selected {
+    background-color: #21b8c6;
+}
+.sel-cal-modal .ant-col-6 {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+.sel-cal-modal .ant-modal-body {
+    padding: 0px !important;
+}
+.content {
+    padding: 24px;
+}
+
+#self-cal-add .ant-form-item {
+    margin-bottom: 0px;
+}
+
+#self-cal-add .ant-form-item-label {
+    line-height: inherit;
+}
+
+#self-cal-change .ant-form-item {
+    margin-bottom: 0px;
+}
+
+#self-cal-change .ant-form-item-label {
+    line-height: inherit;
+}
+
+#self-cal-agg .ant-form-item {
+    margin-bottom: 0px;
+}
+
+#self-cal-agg .ant-form-item-label {
+    line-height: inherit;
+}
+
+#self-cal-trans .ant-form-item {
+    margin-bottom: 0px;
+}
+#self-cal-trans .ant-form-item-label {
+    line-height: inherit;
+}
+.no-style-input {
+    padding: 0px;
+    border: none;
+    height: auto;
+    background: none;
+}
+
+.no-style-input:focus {
+    padding: 0px;
+    border: none;
+    -webkit-box-shadow:none;
+    box-shadow: none;
+}
+
+
+
+.login-form-button {
+    width: 100%;
+}

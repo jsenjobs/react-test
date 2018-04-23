@@ -69,7 +69,7 @@ class Simple0010 extends Component {
             .attr("text-anchor", "start");
         let yTick = yAxis
           .selectAll("g")
-          .data(Array.reverse(y.ticks(10)))
+          .data(y.ticks(10).reverse())
           .enter().append("g");
 
         yTick.append("circle")

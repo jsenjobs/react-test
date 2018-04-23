@@ -9,20 +9,27 @@ import React, { Component } from 'react';
 // import { BrowserRouter as Router, HashRouter as Router, Route} from 'react-router-dom';
 // switch will only render the first fit component and if no switch router will render all fit path's component
 // Route component render// a component function in {} children //similary with render but it will be render any way{empty hold??}
-import { BrowserRouter as Router} from 'react-router-dom';
+// import { BrowserRouter as Router} from 'react-router-dom';
+import { HashRouter as Router} from 'react-router-dom';
 import { Provider} from 'react-redux';
-import {createStore, applyMiddleware } from 'redux'
+// import {createStore, applyMiddleware } from 'redux'
 // import {createLogger} from 'redux-logger'
-import promiseMiddleware from 'redux-promise';
-import reducer from './Redux/Reducer'
+// import promiseMiddleware from 'redux-promise';
+// import reducer from './Redux/Reducer'
 import { Route, Switch, Redirect} from 'react-router-dom';
 import { CookiesProvider } from 'react-cookie';
 import Login from './Login'
-import StateSelect from './StateSelect'
+import Main from './Main'
+import ModelEdit from './component/ModelEdit'
+import {requireAutnentication} from './conf/LoginAuth'
+
+import {getStore} from './utils/AFetch'
 // const logger = createLogger()
-const store = createStore(reducer, {}, applyMiddleware(promiseMiddleware))
+// const store = createStore(reducer, {}, applyMiddleware(promiseMiddleware))
+const store = getStore()
 
 class App extends Component {
+
   render() {
     return (
       <CookiesProvider>
@@ -30,10 +37,13 @@ class App extends Component {
         <Router>
             <Switch>
               <Route exact path='/' /*  route path /path0 will fit /path0 /path0/xxxx and more if want only fit /path0 use exact(={true}) props*/ >
-                <Redirect to='/main' />
+                <Redirect to={store.getState().accountInfo.code === 0 ? '/main' : '/login'} />
               </Route>
               <Route path='/login' component={Login} />
-              <Route path='/main' component={StateSelect} />
+              {// <Route path='/main' component={StateSelect} />
+              }
+              <Route path='/main' component={requireAutnentication(Main)} />
+              <Route path='/model/edit' component={requireAutnentication(ModelEdit)} />
             </Switch>
         </Router>
       </Provider>

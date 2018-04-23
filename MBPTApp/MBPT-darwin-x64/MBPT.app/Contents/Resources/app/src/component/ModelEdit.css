@@ -1,0 +1,10 @@
+
+#mbase .model-edit-move-line {
+    position:absolute;
+    top:64px;
+    height:calc(100% - 64px);
+    overflow:hidden;
+    background: #25425e;
+    cursor:w-resize;
+    z-index: 1000;
+}

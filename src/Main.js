@@ -2,13 +2,17 @@
 import {Layout, Menu, Breadcrumb, Icon, Dropdown} from 'antd'
 import 'antd/dist/antd.css'
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import logo from './logo.png';
 import './App.css';
+import './Main.less';
 import {connect} from 'react-redux'
 
 import { withCookies } from 'react-cookie';
 
+import {Link} from 'react-router-dom';
+
 import NavConf from './conf/NavConf'
+import {wrapAuth} from './conf/UIAuth'
 
 // we could use hashrouter or browserRouter
 // hashs router : /#/page1 /#/page2 // if the web point is static resource more
@@ -19,11 +23,21 @@ import NavConf from './conf/NavConf'
 import { withRouter} from 'react-router-dom';
 
 const {Header, Content, Footer, Sider} = Layout
-
+const AuthMenu = wrapAuth(Menu)
 
 function PathIndex(props) {
-    const paths = props.item.split('/')
-    return <Breadcrumb style={{margin:'12px 0'}}>{paths.map(path => <Breadcrumb.Item key={path}>{path}</Breadcrumb.Item>)}</Breadcrumb>
+  let p = props.item
+  if(p.indexOf('/') === 0) {
+    p = p.substring(1, p.length)
+  }
+    const paths = p.split('/')
+    console.log(p)
+    let base = ''
+    return <Breadcrumb style={{margin:'12px 0'}}>{paths.map(path => {
+      base += `/${path}`
+      console.log(base)
+      return <Breadcrumb.Item key={path}><Link to={base}>{path}</Link></Breadcrumb.Item>
+    })}</Breadcrumb>
 }
 
 
@@ -33,7 +47,9 @@ class Main extends Component {
     this.state = {
       collapsed: false,
       mode: 'inline',
-      defaultSelectedKeys:['/main/charts']
+      defaultSelectedKeys:['/main/dashboard'],
+
+      _username:'',
     }
     this.toggle = this.toggle.bind(this)
     this.contentChanged = this.contentChanged.bind(this)
@@ -52,94 +68,93 @@ class Main extends Component {
     // alert('contentChanged changed' + e.key)
   }
 
+  componentWillMount() {
+    this.setState({_username: this.props.cookies.cookies._username})
+  }
   componentWillReceiveProps(props) {
-    /*
-    alert('change')
+
+    // getKey
       this.setState({
-          defaultSelectedKeys: [props.location.pathname]
+          defaultSelectedKeys: [NavConf.getKey(props.history.location.pathname, this.state.defaultSelectedKeys[0])]
       })
-      */
   }
 
   logout = () => {
     const {cookies} = this.props
-    cookies.remove('_userName')
+    cookies.remove('_username')
     cookies.remove('_password')
+    cookies.remove('_token')
+    cookies.remove('_rToken')
     this.props.logout()
     this.props.history.push('/login')
   }
 
   render() {
     return (
-      <Layout>
+      <Layout className='container-main'>
         <Sider trigger={null}
         collapsible
+        className='main-side-menu'
         collapsed={this.state.collapsed}>
         <div className='logo' >
           <img src={logo} className="App-logo small" alt="logo" />
         </div>
-        <Menu
+        <AuthMenu
+          permission='sys:ui'
           selectedKeys={this.state.defaultSelectedKeys}
           defaultSelectedKeys={this.state.defaultSelectedKeys}
-          defaultOpenKeys={['sub1']}
+          // defaultOpenKeys={['ajax','auth']}
           mode="inline"
           theme="dark"
           inlineCollapsed={this.state.collapsed}
           onSelect={this.contentChanged}
+          className='main-menu'
         >
         {NavConf.navConf}
-        </Menu>
+        </AuthMenu>
         </Sider>
-        <Layout>
-          <Header style={{background:'#000', padding:0}}>
+        <Layout style={{display:'flex'}}>
+          <Header style={{padding:0}}>
           <span style={{color:'#fff',  paddingLeft:'2%', fontSize:'1.4em'}}>
           <Icon className='trigger' type={this.state.collapsed? 'menu-unfold':'menu-fold'}
           onClick={this.toggle}
           style={{cursor:'pointer'}} />
           </span>
-          <span style={{color:'#fff', paddingLeft:'2%', fontSize:'1.4em'}}>Information Management System</span>
+          <span style={{color:'#fff', paddingLeft:'2%', fontSize:'1.4em'}}>666</span>
           <span style={{color:'#fff', float:'right', paddingLeft:'1%'}}>
           <Dropdown overlay={(
             <Menu>
+            <Menu.Item>
+              <div onClick={this.logout}>退出登入</div>
+            </Menu.Item>
               <Menu.Item>
-                <div onClick={this.logout}>Logout</div>
+                <div onClick={this.logout}>个人资料</div>
               </Menu.Item>
             </Menu>
           )} placement="bottomRight">
-            <img src={logo} className="App-logo" alt="logo" />
+            <div style={{marginRight:18}}>{this.state._username}</div>
           </Dropdown>
           </span>
+          {/*
           <Menu
             theme="dark"
             mode="horizontal"
-            defaultSelectedKeys={['2']}
+            defaultSelectedKeys={['1']}
             style={{marginTop:'8px', color:'#fff', float:'right', paddingLeft:'1%'}}
           >
-            <Menu.Item style={{height:'100%'}} key="1">nav 1</Menu.Item>
-            <Menu.Item style={{height:'100%'}} key="2">nav 2</Menu.Item>
-            <Menu.Item style={{height:'100%'}} key="3">nav 3</Menu.Item>
-          </Menu>
+            <Menu.Item style={{height:'100%'}} key="1"><Link to='/main/resourcesearch'>搜索资源</Link></Menu.Item>
+            <Menu.Item style={{height:'100%'}} key="2"><Link to='/model/edit'>数据建模</Link></Menu.Item>
+            <Menu.Item style={{height:'100%'}} key="3"><Link to='/main/modeshare'>模型库</Link></Menu.Item>
+          </Menu>*/}
           </Header>
-          <Content style={{margin:'0 16px', overflow: 'initial'}}>
+          <Content style={{margin:'0 16px', overflow: 'initial', flex:1}}>
             <PathIndex item={this.state.defaultSelectedKeys[0]} />
-            <div style={{ padding: 24, background: '#fff', minHeight: 780 }}>
-
+            <div style={{ padding: 24, background: '#fff', height: '100%' }}>
               {NavConf.routes}
-                {/*
-                <RouteTest />
-                  <Switch>
-                    // route path /path0 will fit /path0 /path0/xxxx and more if want only fit /path0 use exact(={true}) props
-                    <Route exact path='/main'  >
-                      <Redirect to='/main/charts' />
-                    </Route>
-                    <Route path='/main/page1' component={Page1} />
-                    <Route path='/main/page2' component={Page2} />
-                  </Switch>
-                  */}
             </div>
           </Content>
           <Footer style={{ textAlign: 'center' }}>
-            Ant Design ©2016 Created by Ant UED
+            MBPT ©2018 Created by Jsen
           </Footer>
         </Layout>
         <div className="App">
@@ -155,7 +170,7 @@ function mapStateToProps(state) {
 }
 function mapDispatchToProps(dispatch) {
   return {
-    logout: () => dispatch({type:'LOGOUT'}),
+    logout: () => dispatch({type:'CLEAR_ACCOUNT_INFO'}),
   }
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(withCookies(Main)))

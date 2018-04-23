@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 // import * as d3 from 'd3'
 import './style003.css'
-import treeData from './treedata1.json'
+// import treeData from './treedata1.json'
 
 var d3 = require('d3')
 // d3.box = require('d3-box')
@@ -91,12 +91,14 @@ class Simple003 extends Component {
             let links = g.selectAll('.link').data(linksData)
             let enterL = links.enter()
             let exitL = links.exit()
-            enterL.insert('path', '.node')
+            enterL.append('path')
+            // enterL.insert('path', '.node')
                 .attr('class', 'link')
                 .attr('d', d3.linkHorizontal().x(d => d.y).y(d => d.x))
             links.transition().duration(0).attr('d', d3.linkHorizontal().x(d => d.y).y(d => d.x))
             // exitL.transition().duration(500).attr('d', d3.linkHorizontal().x(d => d.y).y(d => d.x)).remove()
             exitL.remove()
+            console.log(linksData)
         }
         // let links = tree(treeData).links()
 

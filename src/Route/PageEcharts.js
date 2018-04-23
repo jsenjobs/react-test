@@ -14,8 +14,14 @@ import Simple003 from './echarts/Simple003'
 import Simple004 from './echarts/Simple004'
 import Simple005 from './echarts/Simple005'
 import Simple006 from './echarts/Simple006'
+import Simple008 from './echarts/Simple008'
+import Simple009 from './echarts/Simple009'
+import Simple0010 from './echarts/Simple0010'
 import Simple0011 from './d3/Simple001'
 // import Simple007 from './echarts/Simple007'
+
+
+import Simple01 from './highcharts/Simple001'
 
 class PageEcharts extends Component {
 
@@ -25,8 +31,16 @@ class PageEcharts extends Component {
     render() {
         return (<div>
             <Row>
-            <Col span={12}><Simple001/></Col>
+            <Col span={12}><Simple01/></Col>
+            <Col span={12}><Simple009 /></Col>
+            </Row>
+            <Row>
+            <Col span={12}><Simple0010 /></Col>
             <Col span={12}><Simple002 /></Col>
+            </Row>
+            <Row>
+            <Col span={12}><Simple008 /></Col>
+            <Col span={12}><Simple001/></Col>
             </Row>
             <Row>
             <Col span={12}><Simple003/></Col>
@@ -39,6 +53,9 @@ class PageEcharts extends Component {
             <Row>
             <Col span={12}><Simple0011 /></Col>
             <Col span={12}><EChartsWithHttp /></Col>
+            </Row>
+            <Row>
+            <Col span={12}><Simple002 /></Col>
             </Row>
             </div>)
     }
