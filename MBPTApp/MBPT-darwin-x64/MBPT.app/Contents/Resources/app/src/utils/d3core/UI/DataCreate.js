@@ -2,6 +2,8 @@ import DataType from '../ModelTypes'
 import {getTransformXY} from './Utils'
 import {addData, addUnionData, addLink} from '../ModelConf'
 import {checkNodePosition} from './AreaChecker'
+import {uuid, uuidStr} from '../../UUID'
+import {execModelPartQuick} from '../Exec/ModelExec'
 const map = {
     AggJoin:'内连接',
     LeftJoin:'左连接',
@@ -9,19 +11,6 @@ const map = {
     LeftExclude:'左排除',
     DistinctUnion:'去重合并',
     Union:'全部合并',
-}
-function uuid() {
-    var s = [];
-    var hexDigits = "0123456789abcdef";
-    for (var i = 0; i < 36; i++) {
-        s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-    }
-    s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
-    s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
-    s[8] = s[13] = s[18] = s[23] = "-";
- 
-    var uuid = s.join("");
-    return uuid;
 }
 /* conf: {
     type:'ToggleCreate',
@@ -44,13 +33,14 @@ export function CreateAndRefresh(target, conf) {
                 x: target.posc.x - target.state.defaultTreePanelWidth - trans.x,
                 y: target.posc.y - 64 - trans.y,
                 text: `${hock.toggleSourceData.metaName}(${hock.toggleSourceData.tableName})`,
-                _workConf: data,
+                _workConf: {...data, viewTableName: uuidStr()},
                 id:uuid(),
             }
             addData(nodeData)
-            checkNodePosition(hock.workBench, nodeData, target.renderD3)
+            checkNodePosition(target, hock.workBench, nodeData, target.renderD3)
             target.canCreate = false
             target.posc = null
+            target.setState({isEdited: true})
         break
         case 'ModeAggregation':
         case 'Trans':
@@ -64,7 +54,7 @@ export function CreateAndRefresh(target, conf) {
                     x:hock.triggerSourceNode.x,
                     y:hock.triggerSourceNode.y + hock.triggerSourceNode.height + typeC.height / 2,
                     text: data.resultCollectionName,
-                    _workConf: data,
+                    _workConf: {...data, type: type, tableName: uuidStr()},
                     id: uuid()
                 }
                 let linkConf = {
@@ -73,7 +63,14 @@ export function CreateAndRefresh(target, conf) {
                 }
                 addData(nodeData)
                 addLink(linkConf)
-                checkNodePosition(hock.workBench, nodeData, target.renderD3)
+                checkNodePosition(target, hock.workBench, nodeData, target.renderD3)
+                
+                execModelPartQuick(target, nodeData.id, nodeData._workConf.tableName).then(ok => {
+                    if(ok) {
+                        target.changeSelectedNode(nodeData, false)
+                    }
+                })
+                // target.setState({isEdited: true})
             }
             hock.triggerSourceNode = null
         break
@@ -97,7 +94,7 @@ export function CreateAndRefresh(target, conf) {
                     x: (sD.x + tD.x + sD.width / 2 + tD.width / 2) / 2.0 - typeC.outR,
                     y: maxD.y + maxD.height + typeC.height / 2,
                     text: map[type],
-                    _workConf: data,
+                    _workConf: {...data, type: type, tableName: uuidStr()},
                     id: uuid()
                 }
                 addUnionData(nodeData)
@@ -119,14 +116,19 @@ export function CreateAndRefresh(target, conf) {
                     ...typeC,
                     x: nodeData.x + nodeData.outR,
                     y: nodeData.y + nodeData.height + typeC.height / 2,
-                    text: map[type],
-                    _workConf: data,
+                    text: data.resultCollectionName,
+                    _workConf: {...data, type: type, tableName: uuidStr()},
                     id: linkConf.target
                 }
                 nodeData.x = nodeData.x - nodeData.width / 2
                 addData(nodeData)
                 addLink(linkConf)
-                checkNodePosition(hock.workBench, nodeData, target.renderD3)
+                checkNodePosition(target, hock.workBench, nodeData, target.renderD3)
+                execModelPartQuick(target, nodeData.id, nodeData._workConf.tableName).then(ok => {
+                    if(ok) {
+                        target.changeSelectedNode(nodeData, false)
+                    }
+                })
             }
             hock.triggerSourceNode = null
         break

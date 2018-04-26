@@ -1,14 +1,11 @@
 import React, {Component} from 'react'
 import Apis from '../../Api/Apis'
-import {Table, Button, message, Modal, Input, Card, Tag, Popconfirm, Select} from 'antd'
-import {AFetch} from '../../utils/AFetch'
+import {Table, Button, message, Modal, Input, Card, Tag, Popconfirm, Select, Transfer} from 'antd'
+import {AFetch, AFetchJSON} from '../../utils/AFetch'
+import TransModal from './TransModal'
 
 const ButtonGroup = Button.Group
 const Option = Select.Option
-
-function CreateOption(datas) {
-    return datas.map(data => (<Option key={data.id} value={data.id}>{data.value}</Option>))
-}
 
 function OwnRoles(props) {
     function deleteRole(e) {
@@ -36,8 +33,10 @@ class User extends Component {
             data: [],
             pagination:{pageSize:20, current:1},
             modalVisiable:false,
-            modalVisiable2: false,
-            roles:[]
+            addRoleModalShow: false,
+            roles:[], // 所有角色
+
+            transRoles: [], // trans中选中的角色
         }
 
         this.columns = [
@@ -57,7 +56,7 @@ class User extends Component {
                     <Popconfirm title='确认删除？' okText="Yes" cancelText="No" onConfirm={this.doDelete.bind(this, index, record.name)}>
                         <Button type='primary'>Delete</Button>
                     </Popconfirm>
-                    <Button type='primary' icon='plus' onClick={this.showModal2.bind(this, index, record.id)}>添加角色</Button>
+                    <Button type='primary' icon='plus' onClick={this.doShowAddRoleModal.bind(this, index, record.id)}>添加角色</Button>
                     </ButtonGroup>)
             }
         ]
@@ -69,31 +68,55 @@ class User extends Component {
     }
 
     render() {
+        const {data, roles, targetKeys, selectedKeys} = this.state
+
+        let transData = []
+        if(this.user_has_roles) {
+            const user_has_roles = this.user_has_roles
+            transData = roles.filter(item => this.user_has_roles.indexOf(item.id) === -1).map(item => {
+                return {
+                    key: item.id,
+                    title: item.value,
+                }
+            })
+        } else {
+            transData = roles.map(item => {
+                return {
+                    key: item.id,
+                    title: item.value,
+                }
+            })
+        }
         return (<div style={{overflow:'auto'}}>
             <Card bordered={false}>
-                <Button type='primary' icon='plus' onClick={this.showAddUserModal}>添加用户</Button>
+                <Button type='primary' icon='plus' onClick={_ => this.setState({modalVisiable: true})}>添加用户</Button>
                 <Modal title='添加用户'
                 visible={this.state.modalVisiable}
                 onOk={this.addUser}
-                onCancel={this.hiddenAddUserModal}
+                onCancel={_ => this.setState({modalVisiable: false})}
                 >
                 <Input ref={input => this.domInput = input} type='text' placeholder='name' />
                 </Modal>
-                <Modal title='添加角色'
-                visible={this.state.modalVisiable2}
-                onOk={this.modal2Ok}
-                onCancel={this.modal2Cancel}
-                >
-                <Select style={{ width: '100%' }} defaultValue={this.state.roles.length > 0 ? this.state.roles[0].value : ''} onChange={value => this.addRoleValue=value}>
-                    {CreateOption(this.state.roles)}
-                </Select>
-                </Modal>
+                <TransModal
+                    title='添加角色'
+                    visible={this.state.addRoleModalShow}
+                    ok={this.doAddRole}
+                    cancel={_ => this.setState({addRoleModalShow: false})}
+                    onChange={this.handleRoleTransChange}
+                    data={transData}
+                    titles={['所有角色', '已选角色']}
+                    targetKeys={this.state.transRoles}
+                />
+
             </Card>
             <Table size='small' defaultExpandAllRows={true} dataSource={this.state.data} columns={this.columns} pagination={this.state.pagination} onChange={this.handleTableChange} 
             expandedRowRender={(record, index) => <OwnRoles itemIndex={index} doDeleteRole={this.doDeleteRole} userId={record.id} roles={record.sysRoleList} />}/>
         </div>)
     }
 
+    handleRoleTransChange = (nextTargetKeys, direction, moveKeys) => {
+        this.setState({ transRoles: nextTargetKeys });
+    }
     fetchData = (pager = this.state.pagination) => {
         AFetch(Apis.auth.listUser + pager.current + '/' + pager.pageSize).then(res => res.json()).then(json => {
             if(json.code === 0) {
@@ -119,6 +142,7 @@ class User extends Component {
         })
     }
 
+    // 分页查询
     handleTableChange = (pagination, filters, storter) => {
         const pager = {...this.state.pagination}
         pager.current = pagination.current
@@ -126,60 +150,28 @@ class User extends Component {
         this.fetchData(pager)
     }
 
-    doDelete = (index, name) => {
-        AFetch(Apis.auth.deleteUser + name).then(res => res.json()).then(json => {
-            if(json.code === 0) {
-                let data = this.state.data
-                data.splice(index, 1)
-                this.setState({data:data})
-                message.info('删除成功')
-            } else {
-                message.error('删除失败')
-            }
-        })
-    }
 
-    showAddUserModal = () => {
+
+    // 显示添加角色modal 添加角色按钮触发
+    doShowAddRoleModal = (user_index, user_id) => {
+        const {data} = this.state
+        if(data[user_index] && data[user_index].sysRoleList) {
+            this.user_has_roles = data[user_index].sysRoleList.map(item => item.id)
+        }
         this.setState({
-            modalVisiable: true
-        })
-    }
-    showModal2 = (user_index, user_id) => {
-        this.setState({
-            modalVisiable2: true
+            addRoleModalShow: true
         })
         this.user_id = user_id
         this.user_index = user_index
     }
-    hiddenAddUserModal = () => {
-        this.setState({
-            modalVisiable: false
-        })
-    }
-    modal2Cancel = () => {
-        this.setState({
-            modalVisiable2: false
-        })
-    }
+
+
     addUser = () => {
         this.setState({
             modalVisiable: false
         })
         // show
         this.doAddUser(this.domInput.input.value)
-    }
-    modal2Ok = () => {
-        this.setState({
-            modalVisiable2: false
-        })
-        if(!this.addRoleValue) {
-            if(this.state.roles.length > 0) {
-                this.addRoleValue = this.state.roles[0].id
-            }
-        }
-        if(this.addRoleValue) {
-            this.addForModal2(this.addRoleValue)
-        }
     }
     doAddUser = (name) => {
         AFetch(Apis.auth.createUser + name).then(res => res.json()).then(json => {
@@ -194,21 +186,38 @@ class User extends Component {
             }
         })
     }
-
-    addForModal2 = (modal2Value) => {
-        AFetch(Apis.user.addRole + this.user_id + '/' + modal2Value).then(res => res.json()).then(json => {
+    // 删除用户
+    doDelete = (index, name) => {
+        AFetch(Apis.auth.deleteUser + name).then(res => res.json()).then(json => {
             if(json.code === 0) {
                 let data = this.state.data
-                let d = json.data
-                data[this.user_index].sysRoleList.push(d)
+                data.splice(index, 1)
                 this.setState({data:data})
-                message.info('添加角色成功')
+                message.info('删除成功')
             } else {
-                message.error('添加角色失败:' + json.msg)
+                message.error('删除失败')
             }
         })
     }
 
+    doAddRole = () => {
+        const {transRoles} = this.state
+        this.setState({
+            addRoleModalShow: false
+        })
+        if(transRoles.length > 0) {
+            AFetchJSON(Apis.user.addRoles + this.user_id + '/' + JSON.stringify(transRoles)).then(json => {
+                if(json.code === 0) {
+                    let data = this.state.data
+                    data[this.user_index].sysRoleList = [...data[this.user_index].sysRoleList, ...json.data]
+                    this.setState({data:data})
+                    message.info('创建用户成功')
+                } else {
+                    message.error('添加角色失败:' + json.msg)
+                }
+            })
+        }
+    }
     doDeleteRole = (user_id, role_id, itemIndex) => {
         AFetch(Apis.user.deleteRole + user_id + '/' + role_id).then(res => res.json()).then(json => {
             if(json.code === 0) {

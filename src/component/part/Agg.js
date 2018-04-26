@@ -27,11 +27,15 @@ class App extends Component {
         const { visible, onCancel, onCreate, triggerSourceConf, triggerTargetConf, httpData_TableColumnInfo, listColumnInfoByTableName } = this.props
         let dbColumns1 = []
         let dbColumns2 = []
+        let sourceTableName = ''
+        let targetTableName = ''
         if(triggerSourceConf) {
-            dbColumns1 = httpData_TableColumnInfo[triggerSourceConf._workConf.tableName]
+            sourceTableName = triggerSourceConf._workConf.tableName
+            dbColumns1 = httpData_TableColumnInfo[sourceTableName]
         }
         if(triggerTargetConf) {
-            dbColumns2 = httpData_TableColumnInfo[triggerTargetConf._workConf.tableName]
+            targetTableName = triggerTargetConf._workConf.tableName
+            dbColumns2 = httpData_TableColumnInfo[targetTableName]
         }
 
         let columns1 = []
@@ -84,7 +88,10 @@ class App extends Component {
                 ShowSelect={this.state.ShowSelect}
                 columns1={columns1}
                 columns2={columns2}
+                sourceTableName={sourceTableName}
+                targetTableName={targetTableName}
                 type={type}
+                visible={visible}
                 />
         </div>
         </Modal>)

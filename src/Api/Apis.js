@@ -1,4 +1,5 @@
-const ApiBase = 'http://server001:8080/'
+// const ApiBase = 'http://server001:8080/'
+const ApiBase = 'http://192.168.0.176:8080/'
 const ApiAuthBase = ApiBase + 'ACRUD/'
 
 const api = {
@@ -33,10 +34,12 @@ const api = {
     user: {
         login: ApiBase + 'sysUser/login/',
         addRole: ApiAuthBase + 'create/uar/',
+        addRoles: ApiAuthBase + 'create/uars/',
         deleteRole: ApiAuthBase + 'delete/uar/',
     },
     role: {
         addPermission: ApiAuthBase + 'create/rap/',
+        addPermissions: ApiAuthBase + 'create/raps/',
         deletePermission: ApiAuthBase + 'delete/rap/',
         listAll: ApiAuthBase + 'role/listAll/',
     },
@@ -52,16 +55,24 @@ const api = {
         listTree: ApiBase + 'topic/listTree',
         addTopic: ApiBase + 'topic/addTopic/',
         addSubTopic: ApiBase + 'topic/addSubTopic/',
+        delTopic: ApiBase + 'topic/delTopic/',
+        delSubTopic: ApiBase + 'topic/delSubTopic/',
     },
     model: {
         create: ApiBase + 'hcModel/model/create',
         update: ApiBase + 'hcModel/model/update',
+        reset: ApiBase + 'hcModel/model/reset',
         updateName: ApiBase + 'hcModel/model/updateName/',
         find: ApiBase + 'hcModel/model/find/',
+
         saveShareModel: ApiBase + 'hcModel/share/model/save/',
         listShareModels: ApiBase + 'hcModel/share/model/list',
         updateShareModel: ApiBase + 'hcModel/share/model/update/',
         deleteShareModel: ApiBase + 'hcModel/share/model/delete/',
+        execShare: ApiBase + 'hcModel/share/model/exec/',
+    },
+    great: {
+        great: ApiBase + 'hcModel/great/great/', // mId
     },
     dbMeta: {
         // 返回某数据库的所有数据表
@@ -75,6 +86,7 @@ const api = {
         delete: ApiBase + 'hcTable/table/delete/',
         insert: ApiBase + 'hcTable/table/insert/',
         addRole: ApiBase + 'hcTable/table/role/',
+        addsRole: ApiBase + 'hcTable/tables/role/',
         addTopic: ApiBase + 'hcTable/table/topic/',
         deleteRoleTable:  ApiBase + 'hcTable/delete/rat/',
     },
@@ -83,7 +95,9 @@ const api = {
             listTableData: ApiBase + 'task/pre/table/list/'
         },
         core: {
-            execPart: ApiBase + 'task/core/part/exec'
+            execPart: ApiBase + 'task/core/part/exec',
+            execModel: ApiBase + 'task/core/model/exec/',
+            delViewTable: ApiBase + 'task/core/view/del/', // 删除某个模型的视图
         }
     }
 }

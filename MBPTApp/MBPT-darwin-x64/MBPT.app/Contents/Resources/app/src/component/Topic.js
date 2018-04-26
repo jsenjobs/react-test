@@ -4,11 +4,12 @@ import {connect} from 'react-redux'
 import { listTree } from '../Redux/PromiseTask/Topic'
 import { listTable } from '../Redux/PromiseTask/HcTable'
 import Apis from '../Api/Apis'
-import './Topic.css'
+import './Topic.less'
 import { Margin } from 'gojs';
-import {AFetch} from '../utils/AFetch'
+import {AFetch, AFetchJSON} from '../utils/AFetch'
 
 import TableSelect from './part/TopicTableSelect'
+const confirm = Modal.confirm
 const {TreeNode} = Tree
 const ButtonGroup = Button.Group
 const FormItem = Form.Item
@@ -16,7 +17,7 @@ const FormItem = Form.Item
 let Datas = {}
 class CreateTree extends Component {
     state = {
-        selectedKeys: []
+        selectedKeys: [],
     }
     render() {
         let props = this.props
@@ -30,8 +31,8 @@ class CreateTree extends Component {
                     return (<TreeNode id={d.id} title={<Popover 
                         visible={self.state[d.id]} 
                         onVisibleChange={v => self.onVisibleChange(v, d.id)} placement="rightTop" trigger='contextMenu' 
-                        content={<div><div style={{cursor:'pointer'}} onClick={_ => self.onTable(d.id)}>添加表关联</div><div style={{cursor:'pointer'}}>删除该子主题</div></div>} 
-                        title="操作">{d.name}</Popover>} key={'sub-topic-' + d.id} />)
+                        content={<div><div style={{cursor:'pointer'}} onClick={_ => self.onTable(d.id)}>添加表关联</div><div onClick={e => self.delSubTopic(e, d.id)} style={{cursor:'pointer'}}>删除该子主题</div></div>} 
+                        title="操作"><span><Icon style={{marginRight:4}} type="skin" />{d.name}</span></Popover>} key={'sub-topic-' + d.id} />)
                     //const subs = build(d._tables, 'table')
                     //return (<TreeNode icon={<Icon type="smile-o" />} title={d.name} key={'topic-' + d.id}>{subs}</TreeNode>)
                 } else if(d._children) {
@@ -39,20 +40,30 @@ class CreateTree extends Component {
                     return (<TreeNode id={d.id} title={<Popover visible={self.state[d.id]} 
                         onVisibleChange={v => self.onVisibleChange(v, d.id)}  placement="rightTop" trigger='contextMenu' 
                         content={<div><div style={{cursor:'pointer'}} onClick={_ => self.onSubTopic(d.id)}>添加子主题</div>
-                        <div style={{cursor:'pointer'}}>删除该主题</div><div onClick={_ => self.onTopic(d.id)} style={{cursor:'pointer'}}>添加主题</div></div>} 
-                        title="操作">{d.name}</Popover>} key={'topic-' + d.id}>{subs}</TreeNode>)
+                        <div onClick={e => self.delTopic(e, d.id)} style={{cursor:'pointer'}}>删除该主题</div><div onClick={_ => self.onTopic(d.id)} style={{cursor:'pointer'}}>添加主题</div></div>} 
+                        title="操作"><span><Icon style={{marginRight:4}} type="skin" />{d.name}</span></Popover>} key={'topic-' + d.id}>{subs}</TreeNode>)
                 } else {
                     return (<TreeNode id={d.id} title={<Popover visible={self.state[d.id]} 
                         onVisibleChange={v => self.onVisibleChange(v, d.id)}  placement="rightTop" trigger='contextMenu' 
                         content={<div><div style={{cursor:'pointer'}} onClick={_ => self.onSubTopic(d.id)}>添加子主题</div>
-                        <div style={{cursor:'pointer'}}>删除该主题</div><div onClick={_ => self.onTopic(d.id)} style={{cursor:'pointer'}}>添加主题</div></div>} 
-                        title="操作">{d.name}</Popover>} key={'topic-' + d.id} />)
+                        <div onClick={e => self.delTopic(e, d.id)} style={{cursor:'pointer'}}>删除该主题</div><div onClick={_ => self.onTopic(d.id)} style={{cursor:'pointer'}}>添加主题</div></div>} 
+                        title="操作"><span><Icon style={{marginRight:4}} type="skin" />{d.name}</span></Popover>} key={'topic-' + d.id} />)
                 }
             })
             return nodes
         }
         return (<Tree
+            multiple
+            autoExpandParent={false}
+            expandedKeys={this.state.selectedKeys}
             selectedKeys={this.state.selectedKeys}
+            onExpand={(expandedKeys, e)=>{
+                if(this.stop) {
+                    this.stop = false
+                    return
+                }
+                this.setState({selectedKeys:expandedKeys})
+            }}
             onSelect={this.onSelect}>
             {build(treeData)}
             </Tree>)
@@ -64,24 +75,81 @@ class CreateTree extends Component {
     }
 
     onSubTopic = (id) => {
+        this.hiddenPopover(id)
         this.onVisibleChange(false, id)
         this.props.doAddSubTopic(id)
     }
 
     onTopic = (id) => {
+        this.hiddenPopover(id)
         this.onVisibleChange(false, id)
         this.props.doAddTopic()
     }
 
+    delTopic = (e, id) => {
+        this.hiddenPopover(id)
+        e.stopPropagation()
+        let self = this
+        confirm({
+            title:'确认删除该主题？',
+            content: id,
+            onOk() {
+                AFetchJSON(Apis.topic.delTopic + id).then(json => {
+                    if(json.code === 0) {
+                        message.success('删除主题成功')
+                        self.props.listTree()
+                    } else {
+                        message.warn('删除主题失败：' + json.msg)
+                    }
+                })
+            }
+        })
+    }
+    delSubTopic = (e, id) => {
+        this.hiddenPopover(id)
+        e.stopPropagation()
+        let self = this
+        confirm({
+            title:'确认删除该子主题？',
+            content: id,
+            onOk() {
+                AFetchJSON(Apis.topic.delSubTopic + id).then(json => {
+                    if(json.code === 0) {
+                        message.success('删除子主题成功')
+                        self.props.listTree()
+                    } else {
+                        message.warn('删除子主题失败：' + json.msg)
+                    }
+                })
+            }
+        })
+
+    }
+
     onSelect = (selectedKeys, e) => {
+        
         let s = {}
         s[e.node.props.id] = false
         this.setState(s)
         this.props.onSelect(selectedKeys, e)
+
+
+        let key = e.node.props.eventKey
+        let data = this.state.selectedKeys
+        if(e.selected) {
+            this.setState({selectedKeys:[...data, key]})
+        } else {
+            this.setState({selectedKeys: data.filter(d => d != key)})
+        }
     }
     onVisibleChange = (v, id) => {
         let s = {}
         s[id] = v
+        this.setState(s)
+    }
+    hiddenPopover = (id) => {
+        let s = {}
+        s[id] = false
         this.setState(s)
     }
 }
@@ -146,7 +214,10 @@ class App extends Component {
         const {httpData_HcTableData} = this.props
         let s = []
         if(httpData_HcTableData.data) {
-            s = httpData_HcTableData.data.map((item, index) => {
+            let selectedTableNams = this.state.selectedData.map(item => item.id)
+            s = httpData_HcTableData.data.filter(item => {
+                return selectedTableNams.indexOf(item.id) === -1
+            }).map((item, index) => {
                 return {
                     key: item.id,
                     title:  `${item.metaName}(${item.tableName})`,
@@ -214,7 +285,9 @@ class App extends Component {
                 </FormItem>
             </Form>
             </Modal>
-            <TableSelect dataSource={s} targetKeys={this.state.tableSelectedKeys} visible={this.state.showAddTables} 
+            <TableSelect dataSource={s} 
+            targetKeys={this.state.tableSelectedKeys}
+            visible={this.state.showAddTables} 
             onOk={this.handleSaveTables} onCancel={this.modalCancel}
              handleChange={this.handleSelectTableChange}/>
             <CreateFunction showModal={this.showModal} style={{marginBottom:'20px'}} hold={this.state.selectedTitle} selectedType={this.state.selectedType} />
@@ -222,6 +295,7 @@ class App extends Component {
                 <Col span={6}>
                 <CreateTree treeData={data}
                  onSelect = {this.onSelect} 
+                 listTree = {this.props.listTree}
                  doAddTopic={_ => this.setState({showAddTopic:true})} 
                  doAddSubTopic={id => {
                     this.setState({showAddSubTopic:true, selectedId: id})
@@ -304,6 +378,9 @@ class App extends Component {
 
     onSelect = (selectedKeys, info) => {
         let data = Datas[info.node.props.eventKey]
+        if(!data) {
+            data = []
+        }
         let state = {}
         state.selectedId = info.node.props.id
         state.selectedData = data

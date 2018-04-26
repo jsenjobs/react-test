@@ -9,9 +9,8 @@ class ModeAggregation extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            currency:{},
-            radioValue:1,
-            groupBy:[],// 分组字段
+            radioValue: 0,
+            useGroupBy: false,
         }
 
     }
@@ -47,16 +46,13 @@ class ModeAggregation extends React.Component {
         let {submitConf, form} = this.props
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                form.resetFields()
-                this.add()
                 submitConf(values)
+                form.resetFields()
+                uuid = 0
+                this.setState({radioValue: 0})
+                this.add()
             }
         });
-    }
-    handleCurrencyChange = (k, attr, value) => {
-        let state = this.state
-        state.currency[k][attr] = value
-        this.setState(state)
     }
     radioChange = (e) => {
         this.setState({
@@ -83,14 +79,10 @@ class ModeAggregation extends React.Component {
         getFieldDecorator('keys', { initialValue: [] })
         const keys = getFieldValue('keys')
         let spanW = keys.length > 1 ? 6 : 7
-        const formItems = keys.map((k, index) => {
-            let key = k + 'ss'
-            if(!this.state.currency[key]) this.state.currency[key] = {}
-            if(!this.state.currency[key].method) this.state.currency[key].method = 'count'
-            if(!this.state.currency[key].columns) this.state.currency[key].columns = '*'
+        const formItems = this.state.radioValue !== 2 ? keys.map((k, index) => {
         return (
             
-                    <Row align="top" type="flex" justify="space-around">
+                    <Row key={k} align="top" type="flex" justify="space-around">
                         <Col span={spanW} span={spanW} style={{padding:0}}>
                         <FormItem
                             {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
@@ -113,18 +105,21 @@ class ModeAggregation extends React.Component {
                                 required={false}
                                 key={k}
                             >
-                                {
-                                <Select
-                                    value={this.state.currency[key].method}
-                                    onChange={value => this.handleCurrencyChange(key, 'method', value)}
-                                >
+                            {getFieldDecorator(`funcs[${k}]`, {
+                                initialValue:'count',
+                                rules: [{
+                                required: true,
+                                message: "统计方法",
+                                }],
+                            })(
+                                <Select>
                                     <Option value="sum">求和(sum)</Option>
                                     <Option value="count">计数(count)</Option>
                                     <Option value="max">最大值(max)</Option>
                                     <Option value="min">最小值(min)</Option>
                                     <Option value="avg">均值(avg)</Option>
                                 </Select>
-                                }
+                            )}
                             </FormItem>
                         </Col>
                         <Col span={spanW} style={{padding:0}}>
@@ -133,16 +128,20 @@ class ModeAggregation extends React.Component {
                                 required={false}
                                 key={k}
                             >
-                                {
+                            {getFieldDecorator(`columns[${k}]`, {
+                                initialValue:'*',
+                                rules: [{
+                                required: true,
+                                message: "分组字段",
+                                }],
+                            })(
                                 <Select
-                                    showSearch
-                                    value={this.state.currency[key].columns}
-                                    onChange={value => this.handleCurrencyChange(key, 'columns', value)}
-                                    filterOption={(input, option) => option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                showSearch
+                                filterOption={(input, option) => option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
-                                    {columns.map(c => <Option key={c} value={c}>{c}</Option>)}
+                                       {columns.map(c => <Option key={c} value={c}>{c}</Option>)}
                                 </Select>
-                                }
+                            )}
                             </FormItem>
                         </Col>
 
@@ -164,7 +163,7 @@ class ModeAggregation extends React.Component {
                         }
                     </Row>
             )
-        });
+        }): null
         return (
         <Form onSubmit={this.handleSubmit} id='self-cal-agg'>
             <FormItem label="结果集中文名" {...formItemLayout}>
@@ -175,39 +174,55 @@ class ModeAggregation extends React.Component {
             )}
             </FormItem>
             <FormItem  label="运算方式" {...formItemLayout}>
-            {
-                <RadioGroup onChange={this.radioChange} value={this.state.radioValue}>
-                    <Radio value={1}>分组统计</Radio>
-                    <Radio value={2}>全表统计</Radio>
-                    <Radio value={3}>数据去重</Radio>
-              </RadioGroup>
-            }
+            {getFieldDecorator('calFunc', {
+                initialValue:0,
+            })(
+                <RadioGroup onChange={this.radioChange}>
+                    <Radio value={0}>分组统计</Radio>
+                    <Radio value={1}>全表统计</Radio>
+                    <Radio value={2}>数据去重</Radio>
+                </RadioGroup>
+            )}
             </FormItem>
-            <FormItem  label="分组字段" />
-            <Row align="middle" type="flex">
+
+            {this.state.radioValue !== 1 ? <FormItem  label="分组字段" /> : null}
+            {this.state.radioValue !== 1 ? <Row align="middle" type="flex">
                 <Col span={18}>
                 <FormItem {...formItemLayout}>
                 {
-                    getFieldDecorator('groupColumn', {
-                            initialValue: ['*'],
+                    getFieldDecorator('groupColumns', {
+                            initialValue: [],
                             rules: [{ required: true, message: '缺少分组字段', type: 'array' }],
                         })(
                             <Select mode='multiple' placeholder='选择分组字段'>
-                                {columns.map(c => <Option key={c}>{c}</Option>)}
+                                {columns.filter(i => i !== '*').map(c => <Option key={c}>{c}</Option>)}
                             </Select>
                     )}
                     </FormItem>
                 </Col>
                 <Col span={6} style={{textAlign:'center'}}>
-                    {getFieldDecorator('useGroupBy', {
+                    {getFieldDecorator('useNotGroupColumn', {
                         valuePropName: 'checked',
                         initialValue: false,
                     })(
-                        <Checkbox />
+                        <Checkbox onChange={e => {
+                            this.setState({useGroupBy : e.target.checked})
+                        }} />
                     )}
                 </Col>
-            </Row>
-            
+            </Row> : null}
+            {this.state.useGroupBy ? 
+                <FormItem {...formItemLayout}>
+                {
+                    getFieldDecorator('notGroupColumns', {
+                            initialValue: [],
+                            rules: [{ type: 'array' }],
+                        })(
+                            <Select mode='multiple' placeholder='选择非分组字段'>
+                                {columns.filter(i => i !== '*').map(c => <Option key={c}>{c}</Option>)}
+                            </Select>
+                    )}
+                    </FormItem> : null}
             {formItems}
             <FormItem>
             <Button type="primary" htmlType="submit" className="login-form-button">

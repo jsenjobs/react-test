@@ -1,5 +1,5 @@
 // @flow
-import {Layout, Menu, Breadcrumb, Icon, Dropdown} from 'antd'
+import {Layout, Menu, Breadcrumb, Icon, Dropdown, Modal, Row, Col, Button} from 'antd'
 import 'antd/dist/antd.css'
 import React, { Component } from 'react';
 import logo from './logo.png';
@@ -13,6 +13,7 @@ import {Link} from 'react-router-dom';
 
 import NavConf from './conf/NavConf'
 import {wrapAuth} from './conf/UIAuth'
+import {getStore} from './utils/AFetch'
 
 // we could use hashrouter or browserRouter
 // hashs router : /#/page1 /#/page2 // if the web point is static resource more
@@ -31,11 +32,9 @@ function PathIndex(props) {
     p = p.substring(1, p.length)
   }
     const paths = p.split('/')
-    console.log(p)
     let base = ''
     return <Breadcrumb style={{margin:'12px 0'}}>{paths.map(path => {
       base += `/${path}`
-      console.log(base)
       return <Breadcrumb.Item key={path}><Link to={base}>{path}</Link></Breadcrumb.Item>
     })}</Breadcrumb>
 }
@@ -50,6 +49,9 @@ class Main extends Component {
       defaultSelectedKeys:['/main/dashboard'],
 
       _username:'',
+      _sex: -1,
+
+      modalSelfInfoShow: false,
     }
     this.toggle = this.toggle.bind(this)
     this.contentChanged = this.contentChanged.bind(this)
@@ -61,15 +63,34 @@ class Main extends Component {
     }))
   }
   contentChanged(e) {
+    /*
     this.props.history.push(e.key)
     this.setState({
         defaultSelectedKeys: [e.key]
-    })
+    })*/
     // alert('contentChanged changed' + e.key)
+  }
+  onItemClick = e => {
+    if(e.key !== this.props.location.pathname) {
+      this.props.history.push(e.key)
+      this.setState({
+          defaultSelectedKeys: [e.key]
+      })
+    }
   }
 
   componentWillMount() {
-    this.setState({_username: this.props.cookies.cookies._username})
+    this.setState({
+        defaultSelectedKeys: this.props.location.pathname
+    })
+    console.log(this.props.cookies.cookies)
+    let _sex = this.props.cookies.cookies._sex
+    if(_sex === '0' || _sex === '1') {
+      _sex = parseInt(_sex)
+    } else {
+      _sex = -1
+    }
+    this.setState({_username: this.props.cookies.cookies._username, _sex})
   }
   componentWillReceiveProps(props) {
 
@@ -85,9 +106,13 @@ class Main extends Component {
     cookies.remove('_password')
     cookies.remove('_token')
     cookies.remove('_rToken')
+    cookies.remove('_sex')
     this.props.logout()
     this.props.history.push('/login')
+    getStore().dispatch({type:'HTTP_DATA_AUTH_INFOS_CLEAR_ALL'})
   }
+
+
 
   render() {
     return (
@@ -108,6 +133,7 @@ class Main extends Component {
           theme="dark"
           inlineCollapsed={this.state.collapsed}
           onSelect={this.contentChanged}
+          onClick={this.onItemClick}
           className='main-menu'
         >
         {NavConf.navConf}
@@ -128,7 +154,7 @@ class Main extends Component {
               <div onClick={this.logout}>退出登入</div>
             </Menu.Item>
               <Menu.Item>
-                <div onClick={this.logout}>个人资料</div>
+                <div onClick={_ => this.setState({modalSelfInfoShow: true})}>个人资料</div>
               </Menu.Item>
             </Menu>
           )} placement="bottomRight">
@@ -157,10 +183,20 @@ class Main extends Component {
             MBPT ©2018 Created by Jsen
           </Footer>
         </Layout>
-        <div className="App">
-        </div>
+        <Modal title="用户信息" visible={this.state.modalSelfInfoShow}
+          onOk={this.doChangeSelfInfo} onCancel={_ => this.setState({modalSelfInfoShow: false})}
+        >
+        <Row>
+          <Col span='12'>用户名：{this.state._username}</Col>
+          <Col span='12'>性别：{this.state._sex === 0 ? '男' : this.state._sex === 1 ? '女' : '未知'}</Col>
+          </Row>
+        </Modal>
       </Layout>
     );
+  }
+
+  doChangeSelfInfo = () => {
+    this.setState({modalSelfInfoShow: false})
   }
 }
 

@@ -1,6 +1,6 @@
 import {getNodeDataById} from './Utils'
 import {getDatas, getLinks, addLink} from '../ModelConf'
-import {deleteNode} from '../CRUD'
+import {showDelNodeModal} from '../Change/ModalHelp'
 import {checkRule} from '../RuleChecker'
 import {dragStart, drag, dragEnd, setCanDrag, getCanDrag} from '../MoveAction'
 import {mouseover, mouseout} from '../MouseAction'
@@ -220,9 +220,7 @@ export function CreateNode(target, parent) {
     .on('mouseenter', _ => p3.style('cursor', 'pointer') )
     .on('mouseout', _ => p3.style('cursor', 'default') )
     .on('click', d => {
-        deleteNode(d.id, _ => {
-            target.renderD3()
-        })
+        showDelNodeModal(target, d)
     })
     let t3 = enterNode.append('text')
     .attr('class', 'funct tyi')
@@ -232,13 +230,14 @@ export function CreateNode(target, parent) {
     .text('移除')
     .style("text-anchor", 'middle')
     .style("dominant-baseline", "middle")
+    .style('pointer-events', 'none')
     .on('mouseenter', _ => t3.style('cursor', 'pointer') )
     .on('mouseout', _ => t3.style('cursor', 'default') )
-    .on('click', d => {
+    /*.on('click', d => {
         deleteNode(d.id, _ => {
             target.renderD3()
         })
-    })
+    })*/
 
     // enter
 

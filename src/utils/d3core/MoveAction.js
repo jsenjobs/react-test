@@ -7,6 +7,7 @@ const d3 = require('d3')
 // const w = rect.width + container.padding * 2
 // const h = rect.height + container.padding * 2 + circle.r * 2
 
+// 节点的move
 let CanDrag = true
 export function setCanDrag(canDrag) {
     CanDrag = canDrag
@@ -14,16 +15,19 @@ export function setCanDrag(canDrag) {
 export function getCanDrag() {
     return CanDrag
 }
+let isMove = false
 export function dragStart(self, d, target) {
     if(!CanDrag) return
     // if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     let node = d3.select(self)
     node.attr('style', 'cursor:move')
     node.raise().classed('node-drag', true)
+    isMove = false
 }
 
 export function drag(d) {
     if(!CanDrag) return
+    isMove = true
     let node = d3.select(this)
     d.x = d3.event.x
     d.y = d3.event.y
@@ -75,8 +79,10 @@ export function dragEnd(self, target) {
     node.attr('style', 'cursor:default')
     node.classed('node-drag', false)
 
-    target.setState({isEdited: true})
-    checkNodePosition(target._hock.workBench, self.__data__, target.renderD3, false)
+    if(isMove) {
+        target.setState({isEdited: true})
+    }
+    checkNodePosition(target, target._hock.workBench, self.__data__, target.renderD3, false)
 }
 
 export function updatePosition(svg, attrs) {

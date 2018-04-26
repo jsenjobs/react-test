@@ -1,9 +1,10 @@
 import React, {Component} from 'react'
 import Apis from '../../Api/Apis'
 import {Table, Button, message, Modal, Input, Card, Tag, Popconfirm, Select, AutoComplete} from 'antd'
-import {AFetch} from '../../utils/AFetch'
+import {AFetchJSON} from '../../utils/AFetch'
 import {connect} from 'react-redux'
 import { listTable } from '../../Redux/PromiseTask/HcTable'
+import TransModal from './TransModal'
 
 
 const ButtonGroup = Button.Group
@@ -49,11 +50,13 @@ class Role extends Component {
         this.state = {
             data: [],
             pagination:{pageSize:20, current:1},
-            modalVisiable:false,
-            modalVisiable2:false,
-            modalVisiable3:false,
+            addRoleModalShow: false,
+            addPermissionModalShow:false,
+            addPermissionTableModalShow:false,
             permissions:[],
-            addTableName:'',
+
+            transPermmisions:[],
+            transPermmisionTables:[],
         }
 
         this.columns = [
@@ -73,8 +76,8 @@ class Role extends Component {
                     <Popconfirm title='确认删除？' okText="Yes" cancelText="No" onConfirm={this.doDelete.bind(this, index, record.value)}>
                         <Button type='primary'>Delete</Button>
                     </Popconfirm>
-                    <Button type='primary' icon='plus' onClick={this.showModal2.bind(this, index, record.id)}>添加权限</Button>
-                    <Button type='primary' icon='plus' onClick={this.showModal3.bind(this, index, record.id)}>表授权</Button>
+                    <Button type='primary' icon='plus' onClick={this.doShowAddPermissionModal.bind(this, index, record.id)}>添加权限</Button>
+                    <Button type='primary' icon='plus' onClick={this.doShowAddPermissionTableModal.bind(this, index, record.id)}>表授权</Button>
                     </ButtonGroup>
                 
             )
@@ -94,51 +97,84 @@ class Role extends Component {
 
     render() {
         let {httpData_HcTableData} = this.props
-        let data = httpData_HcTableData.data
-        data = data ? data:[]
-        let d = []
-        httpData_HcTableData.data.forEach(item => {
-            d.push(`${item.metaName}(${item.tableName})`)
-        })
+
+        const {permissions} = this.state
+
+        let transPermissionData = []
+        if(this.role_has_permissions) {
+            const role_has_permissions = this.role_has_permissions
+            transPermissionData = permissions.filter(item => role_has_permissions.indexOf(item.id) === -1).map(item => {
+                return {
+                    key: item.id,
+                    title: item.permission,
+                }
+            })
+        } else {
+            transPermissionData = permissions.map(item => {
+                return {
+                    key: item.id,
+                    title: item.permission,
+                }
+            })
+        }
+        let tables = httpData_HcTableData.data ? httpData_HcTableData.data : []
+        let transTableData = []
+        if(this.role_has_tables) {
+            const role_has_tables = this.role_has_tables
+            transTableData = tables.filter(item => role_has_tables.indexOf(item.id) === -1).map(item => {
+                return {
+                    key: item.id,
+                    title: `${item.metaName}(${item.tableName})`,
+                }
+            })
+        } else {
+            transTableData = tables.map(item => {
+                return {
+                    key: item.id,
+                    title: `${item.metaName}(${item.tableName})`,
+                }
+            })
+        }
         return (<div style={{overflow:'auto'}}>
             <Card bordered={false}>
                 <Button type='primary' icon='plus' onClick={this.showAddUserModal}>添加角色</Button>
                 <Modal title='添加角色'
-                visible={this.state.modalVisiable}
+                visible={this.state.addRoleModalShow}
                 onOk={this.addUser}
-                onCancel={this.modalCancel}
+                onCancel={_ => this.setState({addRoleModalShow: false})}
                 okText='确认添加'
                 cancelText='取消'
                 >
                 <Input ref={input => this.domInput = input} type='text' placeholder='role[admin,custom..]' />
                 </Modal>
-                <Modal title='添加权限'
-                visible={this.state.modalVisiable2}
-                onOk={this.modal2Ok}
-                onCancel={this.modalCancel}
-                okText='确认添加'
-                cancelText='取消'
-                >
-                <Select style={{ width: '100%' }} defaultValue={this.state.permissions.length > 0 ? this.state.permissions[0].permission : ''} onChange={value => this.addPermissionValue=value}>
-                    {CreateOption(this.state.permissions)}
-                </Select>
-                </Modal>
-                <Modal title='添加表授权'
-                    visible={this.state.modalVisiable3}
-                    onOk={this.addTable}
-                    onCancel={this.modalCancel}
+                <TransModal
+                    title='添加权限'
+                    visible={this.state.addPermissionModalShow}
+                    ok={this.doAddPermission}
+                    cancel={_ => this.setState({addPermissionModalShow: false})}
                     okText='确认添加'
                     cancelText='取消'
-                >
-                <AutoComplete
-                    onChange={value => this.setState({addTableName: value})}
-                    style={{ width: '100%' }}
-                    dataSource={d}
-                    value={this.state.addTableName}
-                    placeholder="输入表名字"
-                    filterOption={(inputValue, option) => option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1}
+                    onChange={(nextTargetKeys, direction, moveKeys) => {
+                        this.setState({ transPermmisions: nextTargetKeys });
+                    }}
+                    data={transPermissionData}
+                    titles={['所有权限', '已选权限']}
+                    targetKeys={this.state.transPermmisions}
                 />
-                </Modal>
+                <TransModal
+                    title='添加表授权'
+                    visible={this.state.addPermissionTableModalShow}
+                    ok={this.doAddTable}
+                    cancel={_ => this.setState({addPermissionTableModalShow: false})}
+                    okText='确认添加'
+                    cancelText='取消'
+                    onChange={(nextTargetKeys, direction, moveKeys) => {
+                        this.setState({ transPermmisionTables: nextTargetKeys });
+                    }}
+                    data={transTableData}
+                    titles={['所有表', '已选表']}
+                    targetKeys={this.state.transPermmisionTables}
+                />
 
             </Card>
             <Table 
@@ -150,7 +186,7 @@ class Role extends Component {
     }
 
     fetchData = (pager = this.state.pagination) => {
-        AFetch(Apis.auth.listRole + pager.current + '/' + pager.pageSize).then(res => res.json()).then(json => {
+        AFetchJSON(Apis.auth.listRole + pager.current + '/' + pager.pageSize).then(json => {
             if(json.code === 0) {
 
                 let data = json.data.map(d => {
@@ -167,7 +203,7 @@ class Role extends Component {
     }
 
     fetchMeta = () => {
-        AFetch(Apis.permission.listAll).then(res => res.json()).then(json => {
+        AFetchJSON(Apis.permission.listAll).then(json => {
             if(json.code === 0) {
                 this.setState({permissions:json.data})
             }
@@ -181,109 +217,91 @@ class Role extends Component {
         this.fetchData(pager)
     }
 
-    doDelete = (index, name) => {
-        AFetch(Apis.auth.deleteRole + name).then(res => res.json()).then(json => {
-            if(json.code === 0) {
-                let data = this.state.data
-                data.splice(index, 1)
-                this.setState({data:data})
-                message.info('删除成功')
-            } else {
-                message.error('删除失败')
-            }
-        })
-    }
+    // 显示Modal
+    doShowAddPermissionModal = (role_index, role_id) => {
+        const {data} = this.state
+        if(data[role_index] && data[role_index].exp.sysPermissionList) {
+            this.role_has_permissions = data[role_index].exp.sysPermissionList.map(item => item.id)
+        }
 
-    showModal2 = (role_index, role_id) => {
         this.setState({
-            modalVisiable2: true
+            addPermissionModalShow: true
+        })
+        this.role_id = role_id
+        this.role_index = role_index
+    }
+    // 显示Modal
+    doShowAddPermissionTableModal = (role_index, role_id) => {
+        const {data} = this.state
+        
+        if(data[role_index] && data[role_index].exp.hcTableList) {
+            this.role_has_tables = data[role_index].exp.hcTableList.map(item => item.id)
+        }
+        
+        this.setState({
+            addPermissionTableModalShow: true,
         })
         this.role_id = role_id
         this.role_index = role_index
     }
 
-    showModal3 = (role_index, role_id) => {
+    
+    doAddTable = () => {
+        const {transPermmisionTables} = this.state
         this.setState({
-            modalVisiable3: true
+            addPermissionTableModalShow: false
         })
-        this.role_id = role_id
-        this.role_index = role_index
-    }
-    modalCancel = () => {
-        this.setState({
-            modalVisiable2: false,
-            modalVisiable: false,
-            modalVisiable3:false,
-        })
-    }
-    addTable = () => {
-        this.modalCancel()
-        let {httpData_HcTableData} = this.props
-        let data = httpData_HcTableData.data
-        data = data ? data:[]
 
-        for(let i = 0; i < data.length; i++) {
-            if(`${data[i].metaName}(${data[i].tableName})` === this.state.addTableName) {
-                AFetch(Apis.table.addRole + data[i].id + '/' + this.role_id).then(res => res.json()).then(json => {
-                    if(json.code === 0) {
-                        let data = this.state.data
-                        let d = json.data
-                        data[this.role_index].exp.hcTableList.push(d)
-                        this.setState({data:data})
-                        message.success('添加授权成功')
-                    } else {
-                        message.error('添加授权失败：' + json.msg)
-                    }
-                }).catch(e => {
-                    message.warn('添加授权失败-2：' + JSON.stringify(e))
-                })
-                this.setState({addTableName: ''})
-                return
-            }
+        if(transPermmisionTables.length > 0) {
+            AFetchJSON(Apis.table.addsRole + JSON.stringify(transPermmisionTables) + '/' + this.role_id).then(json => {
+                if(json.code === 0) {
+                    let data = this.state.data
+                    data[this.role_index].exp.hcTableList = [...data[this.role_index].exp.hcTableList, ...json.data]
+                    this.setState({data:data})
+                    message.info('添加授权成功')
+                } else {
+                    message.error('添加授权失败：:' + json.msg)
+                }
+            })
         }
-        message.warn('没有该数据库')
-        this.setState({addTableName: ''})
     }
-    modal2Ok = () => {
+    doAddPermission = () => {
+
+        const {transPermmisions} = this.state
+
         this.setState({
-            modalVisiable2: false
+            addPermissionModalShow: false
         })
-        if(!this.addPermissionValue) {
-            if(this.state.permissions.length > 0) {
-                this.addPermissionValue = this.state.permissions[0].id
-            }
+
+        if(transPermmisions.length > 0) {
+            AFetchJSON(Apis.role.addPermissions + this.role_id + '/' + JSON.stringify(transPermmisions)).then(json => {
+                if(json.code === 0) {
+                    let data = this.state.data
+                    data[this.role_index].exp.sysPermissionList = [...data[this.role_index].exp.sysPermissionList, ...json.data]
+                    this.setState({data:data})
+                    message.info('添加权限成功')
+                } else {
+                    message.error('添加权限失败:' + json.msg)
+                }
+            })
         }
-        if(this.addPermissionValue) {
-            this.addForModal2(this.addPermissionValue)
-        }
+
     }
-    addForModal2 = (modal2Value) => {
-        AFetch(Apis.role.addPermission + this.role_id + '/' + modal2Value).then(res => res.json()).then(json => {
-            if(json.code === 0) {
-                let data = this.state.data
-                let d = json.data
-                data[this.role_index].exp.sysPermissionList.push(d)
-                this.setState({data:data})
-                message.info('添加权限成功')
-            } else {
-                message.error('添加权限失败:' + json.msg)
-            }
-        })
-    }
+
     showAddUserModal = () => {
         this.setState({
-            modalVisiable: true
+            addRoleModalShow: true
         })
     }
     addUser = () => {
         this.setState({
-            modalVisiable: false
+            addRoleModalShow: false
         })
         // show
         this.doAddUser(this.domInput.input.value)
     }
     doAddUser = (name) => {
-        AFetch(Apis.auth.createRole + name).then(res => res.json()).then(json => {
+        AFetchJSON(Apis.auth.createRole + name).then(json => {
             if(json.code === 0) {
                 let data = this.state.data
                 let d = json.data
@@ -295,8 +313,23 @@ class Role extends Component {
             }
         })
     }
+
+    // 删除角色
+    doDelete = (index, name) => {
+        AFetchJSON(Apis.auth.deleteRole + name).then(json => {
+            if(json.code === 0) {
+                let data = this.state.data
+                data.splice(index, 1)
+                this.setState({data:data})
+                message.info('删除成功')
+            } else {
+                message.error('删除失败')
+            }
+        })
+    }
+    // 删除权限
     doDeletePermission = (role_id, permission_id, itemIndex) => {
-        AFetch(Apis.role.deletePermission + role_id + '/' + permission_id).then(res => res.json()).then(json => {
+        AFetchJSON(Apis.role.deletePermission + role_id + '/' + permission_id).then(json => {
             if(json.code === 0) {
                 let data = this.state.data
                 let item = data[itemIndex].exp.sysPermissionList
@@ -312,12 +345,11 @@ class Role extends Component {
             } else {
                 message.error('删除权限失败:' + json.msg)
             }
-        }).catch(e => {
-            message.error('删除权限失败-2:' + JSON.stringify(e))
         })
     }
+    // 删除表
     doDeleteTable = (role_id, table_id, itemIndex) => {
-        AFetch(Apis.table.deleteRoleTable+ role_id + '/' + table_id).then(res => res.json()).then(json => {
+        AFetchJSON(Apis.table.deleteRoleTable+ role_id + '/' + table_id).then(json => {
             if(json.code === 0) {
                 let data = this.state.data
                 let item = data[itemIndex].exp.hcTableList

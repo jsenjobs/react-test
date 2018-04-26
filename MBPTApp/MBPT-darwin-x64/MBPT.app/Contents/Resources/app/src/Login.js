@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {Layout, Form, Input, Checkbox, Icon, Button, message} from 'antd'
 import './Login.css'
 import 'antd/dist/antd.css'
-import logo from './logo.svg'
+import logo from './logo.png'
 import {connect} from 'react-redux'
 import { login } from './Redux/PromiseTask/Login'
 import { withRouter} from 'react-router-dom';
@@ -61,6 +61,8 @@ class Login extends Component {
             cookies.set('_username', json.username)
             cookies.set('_token', json.token)
             cookies.set('_rToken', json.rToken)
+            cookies.set('_rToken', json.rToken)
+            cookies.set('_sex', json.sex)
 
             // console.log(cookies)
             // console.log(cookies.cookies)

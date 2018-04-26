@@ -48,6 +48,8 @@ class ModeAggregation extends React.Component {
             if (!err) {
                 submitConf(values)
                 form.resetFields()
+                uuid = 0
+                this.setState({radioValue: 0})
                 this.add()
             }
         });
@@ -80,7 +82,7 @@ class ModeAggregation extends React.Component {
         const formItems = this.state.radioValue !== 2 ? keys.map((k, index) => {
         return (
             
-                    <Row align="top" type="flex" justify="space-around">
+                    <Row key={k} align="top" type="flex" justify="space-around">
                         <Col span={spanW} span={spanW} style={{padding:0}}>
                         <FormItem
                             {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
@@ -174,7 +176,6 @@ class ModeAggregation extends React.Component {
             <FormItem  label="运算方式" {...formItemLayout}>
             {getFieldDecorator('calFunc', {
                 initialValue:0,
-                valuePropName: 'defaultValue',
             })(
                 <RadioGroup onChange={this.radioChange}>
                     <Radio value={0}>分组统计</Radio>

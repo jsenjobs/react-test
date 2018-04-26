@@ -1,10 +1,11 @@
 import React, {Component} from 'react'
-import { Menu, Dropdown, Icon, Input, Button, AutoComplete, Table, message, Modal, Checkbox} from 'antd';
+import { Row, Col, Menu, Dropdown, Icon, Input, Button, AutoComplete, Table, message, Modal, Checkbox} from 'antd';
 import './ResourceSearch.less'
 import {connect} from 'react-redux'
 import { listTree } from '../Redux/PromiseTask/Topic'
 import Apis from '../Api/Apis'
 import {AFetchJSON} from '../utils/AFetch'
+import ButtonGroup from 'antd/lib/button/button-group';
 const SubMenu = Menu.SubMenu;
 const Option = AutoComplete.Option;
 const OptGroup = AutoComplete.OptGroup;
@@ -97,6 +98,7 @@ class CreateFilterResult extends Component {
         filterModal: false,
         columnShowChecked: {}, // 字段过滤标志
         columnFilterChecked: {}, // 字段显示标志
+        columnFilterCheckValue: {},
         updateFlag: -1,
     }
     constructor(props) {
@@ -108,10 +110,12 @@ class CreateFilterResult extends Component {
         if(tableDatas.length > 0 && (this.props.filterData !== newProps.filterData || isEmptyObj(this.state.columnFilterChecked))) {
             let column = tableDatas[0]
             let columnFilterChecked = {}
+            let columnFilterCheckValue = {}
             for(let key in column) {
-                columnFilterChecked[key] = true
+                columnFilterChecked[key] = false
+                columnFilterCheckValue[key] = ''
             }
-            this.setState({columnFilterChecked})
+            this.setState({columnFilterChecked, columnFilterCheckValue})
         }
         if(tableDatas.length > 0 && (this.state.updateFlag < newProps.updateFlag || isEmptyObj(this.state.columnShowChecked))) {
             let column = tableDatas[0]
@@ -128,117 +132,132 @@ class CreateFilterResult extends Component {
         }
     }
     render() {
-        const {filterData, filterPath, deep, tableDatas} = this.props
+        const {filterData, filterPath, deep, tableDatas, fetchTableDatas, tableName} = this.props
         if(filterPath.length === 0) return null
+
+        let tableShow = null
+        if(tableDatas.length > 0) {
+            let column = tableDatas[0]
+            let columnShowChecked = this.state.columnShowChecked
+
+            let cConf = []
+            for(let key in column) {
+                if(columnShowChecked[key]) {
+                    cConf.push({
+                        title: key,
+                        dataIndex: key,
+                    })
+                }
+            }
+            const modalDatas = []
+            const filerModalData = []
+            for(let key in this.state.columnShowChecked) {
+                modalDatas.push(<Checkbox checked={this.state.columnShowChecked[key]} onChange={e => {
+                    let columnShowChecked = this.state.columnShowChecked
+                    columnShowChecked[key] = e.target.checked
+                    this.setState({columnShowChecked})
+                }} >{key}</Checkbox>)
+            }
+            for(let key in this.state.columnFilterChecked) {
+                filerModalData.push(<Row className='modal-column-filter-row'><Col span='8'><Checkbox checked={this.state.columnFilterChecked[key]} onChange={e => {
+                    let columnFilterChecked = this.state.columnFilterChecked
+                    columnFilterChecked[key] = e.target.checked
+                    this.setState({columnFilterChecked})
+                }} >{key}</Checkbox></Col><Col span='16'>{this.state.columnFilterChecked[key] ? <Input value={this.state.columnFilterCheckValue[key]} onChange={e => {
+                    let columnFilterCheckValue = this.state.columnFilterCheckValue
+                    columnFilterCheckValue[key] = e.target.value
+                    this.setState({columnFilterCheckValue})
+                }} size='small' placeholder='请输入值' /> : null }</Col></Row>)
+            }
+            tableShow = <div>
+            <Modal title="过滤特殊字段" visible={this.state.filterModal}
+                onOk={this.filterColumnChange} onCancel={_ => this.setState({filterModal: false})}
+                >
+                {filerModalData}
+            </Modal>
+            <Modal title="字段显示设置" visible={this.state.showModal}
+                onOk={_ => this.setState({showModal: false})} onCancel={_ => this.setState({showModal: false})}
+                >
+                {modalDatas}
+            </Modal>
+                <Table size='small' pagination={false} dataSource={tableDatas} columns={cConf}
+                title={_ => {
+                    return <div>
+                        <Row>
+                            <Col span='12' style={{marginBottom:6}}>
+                                {tableName}表的数据
+                            </Col>
+                            <Col span='12' >
+                                <ButtonGroup size='small' style={{float:'right'}}>
+                                    <Button type='primary' size='small' onClick={_ => this.setState({showModal:true})}>设置显示的字段</Button>
+                                    <Button type='primary' size='small' onClick={_ => this.setState({filterModal:true})}>过滤特殊字段</Button>
+                                </ButtonGroup>
+                            </Col>
+                        </Row>
+                    </div>
+                }}
+                />
+            </div>
+        }
         if(deep === 3) {
             // 选中数据表
-            
-            if(tableDatas.length > 0) {
-                let column = tableDatas[0]
-                let columnShowChecked = this.state.columnShowChecked
 
-                let cConf = []
-                for(let key in column) {
-                    if(columnShowChecked[key]) {
-                        cConf.push({
-                            title: key,
-                            dataIndex: key,
-                        })
-                    }
-                }
-                const modalDatas = []
-                const filerModalData = []
-                for(let key in this.state.columnShowChecked) {
-                    modalDatas.push(<Checkbox checked={this.state.columnShowChecked[key]} onChange={e => {
-                        let columnShowChecked = this.state.columnShowChecked
-                        columnShowChecked[key] = e.target.checked
-                        this.setState({columnShowChecked})
-                    }} >{key}</Checkbox>)
-                }
-                for(let key in this.state.columnFilterChecked) {
-                    filerModalData.push(<Checkbox checked={this.state.columnFilterChecked[key]} onChange={e => {
-                        let columnFilterChecked = this.state.columnFilterChecked
-                        columnFilterChecked[key] = e.target.checked
-                        this.setState({columnFilterChecked})
-                    }} >{key}</Checkbox>)
-                }
+            if(tableShow) {
                 return <div>
-                <Modal title="字段过滤设置" visible={this.state.filterModal}
-                    onOk={this.filterColumnChange} onCancel={_ => this.setState({filterModal: false})}
-                    >
-                    {filerModalData}
-                </Modal>
-                <Modal title="字段显示设置" visible={this.state.showModal}
-                    onOk={this.showColumnChange} onCancel={_ => this.setState({showModal: false})}
-                    >
-                    {modalDatas}
-                </Modal>
-                    <div className='all-tables-title'>选中{filterData}数据库</div>
-                    <div><Table size='small' pagination={false} dataSource={tableDatas} columns={cConf}
-                    title={_ => {
-                        return <div>
-                            <Button type='primary' size='small' onClick={_ => this.setState({showModal:true})}>设置显示的字段</Button>
-                            <Button type='primary' size='small' onClick={_ => this.setState({filterModal:true})}>过滤特殊字段</Button>
-                        </div>
-                    }}
-                    /></div>
-                </div>
+                        <div className='all-tables-title' style={{marginBottom: 6, borderRadius: 4}}>选中{filterData}数据表</div>
+                        {tableShow}
+                    </div>
             } else {
-    
-            return <div>
-                    <div className='all-tables-title'>选中{filterData}数据库</div>
-                    <div>没有数据显示</div>
-                </div>
+                return <div>
+                        <div className='all-tables-title' style={{marginBottom: 6, borderRadius: 4}}>选中{filterData}数据表</div>
+                        <div>没有数据显示</div>
+                    </div>
             }
         } else if(deep === 2) {
             const content = filterData.map(item => {
-                return <p style={{float:'left', padding:6}} key={item.tableName}>{item.tableName}</p>
+                return <p onClick={_ => fetchTableDatas(item.tableName)} style={{float:'left', cursor: 'pointer', padding:6}} key={item.tableName}>{item.tableName}</p>
             })
             return <div>
-                <div className='all-tables-title'>{filterPath}</div>
-                {content}
+                    <div className='all-tables-out'>
+                        <div className='all-tables-title'>{filterPath}</div>
+                        <div className='all-tables-container'>{content}</div>
+                    </div>
+                    {tableShow}
                 </div>
         } else if(deep === 1) {
             const content = filterData.map(item => {
                 const tables = (item._tables && item._tables.length > 0) ? item._tables.map(table =>
-                     <p className='all-tables-p' style={{float:'left', padding:'0 6px'}} key={table.tableName}>{table.tableName}</p>) : <p>没有表</p>
-                return <div>
+                     <p onClick={_ => fetchTableDatas(table.tableName)} className='all-tables-p' style={{float:'left', cursor: 'pointer', padding:'0 6px'}} key={table.tableName}>{table.tableName}</p>) : <p>没有表</p>
+                return <div className='all-tables-out'>
                     <div className='all-tables-title'>{`${filterPath}/${item.name}`}</div>
                     <div className='all-tables-container'>{tables}</div>
                     </div>
             })
             return <div>
-                <div className='all-tables-title'>{`${filterPath}`}</div>
+                <div className='all-tables-title' style={{marginBottom: 6, borderRadius: 4}}>{`${filterPath}`}</div>
                 {content}
+                {tableShow}
                 </div>
         }
         return null
 
     }
 
-    showColumnChange = () => {
-        this.setState({showModal: false})
-    }
-
     filterColumnChange = () => {
-        const {columnFilterChecked} = this.state
-        let column = ''
+        const {columnFilterChecked, columnFilterCheckValue} = this.state
+        let query = ''
         for(let key in columnFilterChecked) {
-            if(columnFilterChecked[key]) {
-                column += key + ','
+            if(columnFilterChecked[key] && columnFilterCheckValue[key]) {
+                query += `${key}='${columnFilterCheckValue[key]}',`
             }
         }
-        if(column === '') {
-            for(let key in columnFilterChecked) {
-                columnFilterChecked[key] = true
-            }
-            this.setState({columnFilterChecked})
-        } else {
-            column = column.substring(0, column.length - 1)
-            console.log(column)
-            this.props.onColumnChanged(column)
-            this.setState({filterModal: false})
+        // column = column.substring(0, column.length - 1)
+        query = query.trim()
+        if(query.length > 0) {
+            query = query.substring(0, query.length - 1)
         }
+        this.props.onColumnChanged(query)
+        this.setState({filterModal: false})
     }
 }
 
@@ -251,26 +270,19 @@ class ResourceSearch extends Component {
         deep: 0, // 1，2，3 一为主题 三为table
 
         tableDatas: [],
+        tableName: '', // 当前选中的table 名字
 
         updateFlag:0,
     }
     constructor(props) {
         super(props)
-        this.column = '*'
+        this.query = ''
     }
     componentDidMount() {
         let {httpData_TopicTreeData, listTree} = this.props
         if(httpData_TopicTreeData.code !== 0) {
             listTree()
         }
-        /*
-        AFetch(Apis.topic.listTree).then(res => res.json()).then(json => {
-            if(json.code === 0) {
-                this.setState({
-                    treeData:json.data
-                })
-            }
-        })*/
     }
     render() {
         let data = this.props.httpData_TopicTreeData.data
@@ -287,9 +299,18 @@ class ResourceSearch extends Component {
             <Input placeholder="搜索资源 主题 数据表" style={{borderRadius: 16, padding:'4px 18px'}} onPressEnter={_ => this.onItemSelected(this.state.searchValue)} />
             </AutoComplete>
             <Dropdown placement="bottomLeft" overlay={handleD.drop} visible={this.state.dropVisible} onVisibleChange={v => this.setState({dropVisible:v})}>
-                <Button className='drop-down-button' icon='search' type='dashed' style={{margin:'20px 0px'}}>查找主题</Button>
+                <Button className='drop-down-button' icon='search' type='dashed'>查找主题</Button>
             </Dropdown>
-            <CreateFilterResult onColumnChanged={this.onColumnChanged} updateFlag={this.state.updateFlag} tableDatas={this.state.tableDatas} filterPath={this.state.filterPath} filterData={this.state.filterData} deep={this.state.deep} />
+            <CreateFilterResult
+                onColumnChanged={this.onColumnChanged} 
+                updateFlag={this.state.updateFlag} 
+                tableDatas={this.state.tableDatas}
+                filterPath={this.state.filterPath} 
+                filterData={this.state.filterData} 
+                deep={this.state.deep} 
+                fetchTableDatas={this.fetchTableDatas}
+                tableName={this.state.tableName}
+             />
             
         </div>)
     }
@@ -313,7 +334,9 @@ class ResourceSearch extends Component {
                 this.setState({
                     dropVisible: false,
                     tableDatas: [],
-                    filterPath: path, filterData: data ? data : [], deep: 1
+                    filterPath: path, 
+                    filterData: data ? data : [], 
+                    deep: 1
                 })
             }
         } else if(len === 3) {
@@ -338,7 +361,9 @@ class ResourceSearch extends Component {
                 this.setState({
                     dropVisible: false,
                     tableDatas: [],
-                    filterPath: path, filterData: data ? data : [], deep: 2
+                    filterPath: path, 
+                    filterData: data ? data : [],
+                    deep: 2
                 })
             }
         } else if(len === 4) {
@@ -368,16 +393,21 @@ class ResourceSearch extends Component {
                     data = item.tableName
                 }
             })
+            //         const {filterData, filterPath, deep, tableDatas} = this.props
+
             if(find) {
-                this.column = '*'
+                this.query = ''
                 // fetch data
-                AFetchJSON(Apis.task.pre.listTableData + data + '/0/20/' + this.column).then(json => {
+                AFetchJSON(Apis.task.pre.listTableData + data + '/0/20?query=' + this.query).then(json => {
                     if(json.code === 0) {
                         message.success(`获取数据表${data}数据成功`)
                         this.setState({
                             dropVisible: false,
                             tableDatas: json.data,
-                            filterPath: path, filterData: data ? data : [], deep: 3,
+                            filterPath: path,
+                            filterData: data ? data : [],
+                            deep: 3,
+                            tableName: data,
                             updateFlag: this.state.updateFlag+1
                         })
                     } else {
@@ -389,18 +419,35 @@ class ResourceSearch extends Component {
         }
     }
 
-    onColumnChanged = (column) => {
-        this.column = column
+    fetchTableDatas = (tableName) => {
+        this.query = ''
+        this.tableName = tableName
         // fetch data
-        AFetchJSON(Apis.task.pre.listTableData + this.state.filterData + '/0/20/' + this.column).then(json => {
+        AFetchJSON(Apis.task.pre.listTableData + tableName + '/0/20?query=' + this.query).then(json => {
             if(json.code === 0) {
-                message.success(`获取数据表${this.state.filterData}数据成功`)
+                message.success(`获取数据表${tableName}数据成功`)
+                this.setState({
+                    tableDatas: json.data,
+                    tableName: tableName,
+                })
+            } else {
+                message.warn(`获取数据表${tableName}数据失败：${json.msg}`)
+            }
+        })
+    }
+
+    onColumnChanged = (query) => {
+        this.query = query
+        // fetch data
+        AFetchJSON(Apis.task.pre.listTableData + this.tableName + '/0/20?query=' + this.query).then(json => {
+            if(json.code === 0) {
+                message.success(`获取数据表${this.tableName}数据成功`)
                 this.setState({
                     tableDatas: json.data,
                     updateFlag: this.state.updateFlag+1,
                 })
             } else {
-                message.warn(`获取数据表${this.state.filterData}数据失败：${json.msg}`)
+                message.warn(`获取数据表${this.tableName}数据失败：${json.msg}`)
             }
         })
 

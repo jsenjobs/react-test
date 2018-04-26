@@ -16,7 +16,8 @@ const navItems = [
     {key:'/main/dashboard', icon:'appstore', title:'主面板', component:COM.DashBoard, permissions:['sys:ui:dashboard']},
     {key:'/main/resourcesearch', icon:'search', title:'搜索资源', component:COM.ResourceSearch, permissions:['sys:ui:resourcesearch'], showInDashBoard:true},
     {key:'/model/edit', icon:'line-chart', title:'数据建模', component:COM.ModelEdit, permissions:['sys:ui:dataModel'], showInDashBoard:true},
-    {key:'/main/modeshare', icon:'bar-chart', title:'模型库', component:COM.ModelShare, permissions:['sys:ui:modelCenter'], showInDashBoard:true},
+    {key:'/main/modeshare', icon:'bar-chart', title:'模型库', component:COM.ModelShare, permissions:['sys:ui:modelCenter'], showInDashBoard:true,
+    inner:{key:'/main/modeshare/exec/:id', component: COM.ModelExec, permissions:['sys:ui:modelCenter']}},
     {key:'sys', icon:'setting', title:'系统管理', children:[
         // {key:'/main/ajax/show/users', title:'用户List', component:COM.ShowUsers},
         {key:'auth', title:'权限管理', children:[
@@ -110,25 +111,41 @@ function buildComponents(confs) {
     })
 }
 
+// <Route key={item.key} path={item.key} component={AC} />
+// {key:'/main/modeshare', icon:'bar-chart', title:'模型库', component:COM.ModelShare, permissions:['sys:ui:modelCenter'], showInDashBoard:true},
 function buildRoutes(conf) {
-    return conf.map(item => {
+    const result = conf.map(item => {
         if(item.children) {
+            console.log(item.component)
             if(item.component) {
+                console.log(1)
                 let AC = wrapAuthPermission(item.component, item.permissions, <div>正在加载权限</div>, <div>没有访问权限</div>)
                 return buildRoutes(item.children) + (<Route key={item.key} path={item.key} component={AC} />)
             } else {
+                console.log(2)
                 return buildRoutes(item.children)
             }
         } else {
             if(item.component) {
-                let AC = wrapAuthPermission(item.component, item.permissions, <div>正在加载权限</div>, <div>没有访问权限</div>)
-                return (<Route key={item.key} path={item.key} component={AC} />)
+                if(!item.inner) {
+                    let AC = wrapAuthPermission(item.component, item.permissions, <div>正在加载权限</div>, <div>没有访问权限</div>)
+                    return (<Route key={item.key} path={item.key} component={AC} />)
+                } else {
+                    let inner = item.inner
+                    let ACInner = wrapAuthPermission(inner.component, inner.permissions, <div>正在加载权限</div>, <div>没有访问权限</div>)
+                    let AC = wrapAuthPermission(item.component, item.permissions, <div>正在加载权限</div>, <div>没有访问权限</div>)
+                    return [<Route key={inner.key} path={inner.key} component={ACInner} />, <Route key={item.key} path={item.key} component={AC} />]
+                }
             }
         }
         return null
     })
+    console.log(result)
+    return result
 }
 function routes() {
+    let AC = wrapAuthPermission(COM.ModelExec, ['sys:ui:modelCenter'], <div>正在加载权限</div>, <div>没有访问权限</div>)
+    
     return (<Switch>
         <Route exact path='/main'  >
           <Redirect to='/main/dashboard' />
@@ -154,6 +171,9 @@ function routes() {
 
 let paths = {}
 function getKey(path, oldKey) {
+    if(path.startsWith('/main/modeshare')) {
+        return '/main/modeshare'
+    }
     if(paths[path]) {
         return path
     }

@@ -1,7 +1,7 @@
 
 import React, {Component} from 'react'
 import { Tree, Icon} from 'antd'
-import logo from '../../logo.svg';
+import logo from '../../logo.png';
 const {TreeNode} = Tree
 
 var DataTree = {}
@@ -61,9 +61,6 @@ export function createTree(target) {
         </div>
             <TreeNode title="主题" key="-topic">
                 {build(treeData)}
-                <TreeNode title={<span style={{ color: '#1890ff' }} style={{'cursor':target.state.cursor}} onMouseEnter ={e => target.handleMouseEnter(e, 'DataSource')} onMouseOut={target.handleMouseOut}>table-1</span>} key="0-0-0-0" />
-                <TreeNode title={<span style={{ color: '#1890ff' }} style={{'cursor':target.state.cursor}} onMouseEnter ={e => target.handleMouseEnter(e, 'DataSource')} onMouseOut={target.handleMouseOut}>table-2</span>} key="0-0-0-1" />
-                <TreeNode title="leaf3" key="0-0-0-2" />
             </TreeNode>
             <TreeNode title="分析池" key="-ana">
                 <TreeNode title={<span style={{ color: '#1890ff' }} style={{'cursor':target.state.cursor}} onMouseEnter ={e => target.handleMouseEnter(e, 'DataSource')} onMouseOut={target.handleMouseOut}>ana-1</span>} key="0-0-1-0" />

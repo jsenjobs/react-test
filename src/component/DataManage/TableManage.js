@@ -5,7 +5,7 @@ import { listTree } from '../../Redux/PromiseTask/Topic'
 import { listColumns, listTables } from '../../Redux/PromiseTask/DbMeta'
 import { listTable } from '../../Redux/PromiseTask/HcTable'
 import Apis from '../../Api/Apis'
-import '../Topic.css'
+import '../Topic.less'
 
 import TableSelect from '../part/TopicTableSelect'
 import { AFetch } from '../../utils/AFetch';

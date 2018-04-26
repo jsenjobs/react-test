@@ -31,5 +31,8 @@ export function getNodeDataById(id) {
             }
         })
     }
+    if(!result) {
+        result = {x: -1000, y: -1000, padding:0, height: 0, width: 0}
+    }
     return result
 }

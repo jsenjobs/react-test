@@ -13,7 +13,20 @@ class App extends Component {
         if(!conf) {
             return <div style={{paddingLeft:12}}>没有选中的模型</div>
         } else {
-            if(conf.type === 'DataSource' || conf.type === 'Calc') {
+            if(conf.type === 'DataSource' || conf.type === 'Calc' || conf.type === 'Union') {
+                if(!execResult || execResult.length === 0) return <div style={{paddingLeft:12}}>没有可显示的执行数据</div>
+                let first = execResult[0]
+                let cs = []
+                for(let key in first) {
+                    cs.push({
+                        title: key,
+                        dataIndex: key,
+                        key: key,
+                    })
+                }
+
+                return <Table style={{paddingBottom:12}} pagination={false} size='small' columns={cs} dataSource={execResult} />
+            } else if(conf.type === 'ModelAll') {
                 if(!execResult || execResult.length === 0) return <div style={{paddingLeft:12}}>没有可显示的执行数据</div>
                 let first = execResult[0]
                 let cs = []

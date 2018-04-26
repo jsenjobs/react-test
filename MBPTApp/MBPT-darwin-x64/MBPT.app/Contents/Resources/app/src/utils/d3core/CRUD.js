@@ -55,10 +55,15 @@ function deleteBottomLinks(id) {
     }
     return bottomIds
 }
-function delUNode(id) {
+function delUNode(id, delList) {
     let del = false
     getDatas().forEach((d, i) => {
         if(d.id === id) {
+            if(d.type !== 'DataSource') {
+                delList.push(d._workConf.tableName)
+            } else {
+                delList.push(d._workConf.viewTableName)
+            }
             spliceData(i, 1)
             del = true
             return
@@ -74,33 +79,19 @@ function delUNode(id) {
         }
     })
 }
-function del(id) {
+function del(id, delList) {
     let ndl = deleteTopLinks(id)
     let dBis = deleteBottomLinks(id)
-    delUNode(id)
+    delUNode(id, delList)
     dBis.forEach(a => {
-        del(a)
+        del(a, delList)
     })
     ndl.forEach(a => {
-        del(a)
+        del(a, delList)
     })
 }
 export function deleteNode(id, call) {
-    del(id)
-    
-    /*
-    let id = d.id
-    getDatas().forEach((dd, i) => {
-        if(dd.id === id) {
-            spliceData(i, 1)
-            return
-        }
-    })
-    let index = getLinkIds(getLinks(), id)
-    while(index >= 0) {
-        spliceLink(index, 1)
-        index = getLinkIds(getLinks(), id)
-    }
-    */
-    call()
+    let delList = []
+    del(id, delList)
+    call(delList)
 }

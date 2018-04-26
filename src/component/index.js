@@ -7,6 +7,7 @@ import DashBoard from './DashBoard'
 import ResourceSearch from './ResourceSearch'
 import ModelEdit from './ModelEdit'
 import ModelShare from './ModelShare'
+import ModelExec from './ModelExec'
 import Topic from './Topic'
 import TableManage from './DataManage/TableManage'
 
@@ -20,6 +21,7 @@ export default {
     ResourceSearch,
     ModelEdit,
     ModelShare,
+    ModelExec,
     Topic,
     TableManage,
 }

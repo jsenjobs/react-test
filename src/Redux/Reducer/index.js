@@ -11,6 +11,7 @@ import httpData_DbMetaData from './HttpData/DBMetaData'
 import httpData_HcTableData from './HttpData/HcTableData'
 
 import {httpData_TableColumnInfo} from '../PromiseTask/TableColumnInfo'
+import {httpData_authInfos} from '../PromiseTask/AuthCach'
 
 // 下面的组合对象会映射到state对应的key上
 export default combineReducers({counter, clock, httpResult, loginState, accountInfo, workConf, httpData_TopicTreeData,
@@ -20,4 +21,5 @@ export default combineReducers({counter, clock, httpResult, loginState, accountI
 
     // 保存网络table的columnInfo {account:[],simple:[]}
     httpData_TableColumnInfo,
+    httpData_authInfos,
 })

@@ -24,11 +24,12 @@ import {deleteNode} from '../utils/d3core/CRUD'
 import DataType from '../utils/d3core/ModelTypes'
 import {CreateAndRefresh} from '../utils/d3core/UI/DataCreate'
 import {CreateLink, CreateNode, CreateUnionNode, CreateLabel} from '../utils/d3core/UI/ModeCreate'
-import {initEvent, initDatas} from '../utils/d3core/UI/Initer'
+import {initEvent, initDatas, resetDatas} from '../utils/d3core/UI/Initer'
 import {checkNodePosition} from '../utils/d3core/UI/AreaChecker'
 import {getTransformXY, getNodeDataById} from '../utils/d3core/UI/Utils'
 import {updateValueById, removeAll, getDatas, getUnionDatas, addUnionData, getLinks, addData, addLink, getLinkCenter, spliceData, spliceLink} from '../utils/d3core/ModelConf'
-import {save as coreSave, execModelPart as coreExecModelPart} from '../utils/d3core/Exec/ModelExec'
+import {save as coreSave, execModelPart as coreExecModelPart, execModel as coreExecModel, execModelPart} from '../utils/d3core/Exec/ModelExec'
+import {createShare as coreCreateShare, updateShareModel as coreUpdateShareModel, updateModelName as coreUpdateModelName} from '../utils/d3core/Exec/ModelShare'
 
 import {createTree} from './ModelEditComponent/ModelTree'
 import {ColumnsShow} from './ModelEditComponent/Columns'
@@ -62,12 +63,14 @@ class ModelEdit extends Component {
         super(props)
         this.state = {
             // display: this.props.display,
+            // svg work bench 拖动的鼠标形状
             cursor:'default', 
             isDragg: false, //设置下是不是在drag状态
             visibleSelfCalModal: false,
             visibleAggModal: false,
 
             modalRenameShow:false,
+            modalCreateShareModelShow: false,
 
 
             // conf
@@ -80,8 +83,9 @@ class ModelEdit extends Component {
             defaultAttrPanelWidth: 360,
             defaultEditorPanelWidth: 'calc(100% - 360px)',
             defaultTreePanelWidth: 300,
-            leftLineWidth:4,
-            rightLineWidth:4,
+
+            isLeftTogglet: false,
+            isRightTogglet: false,
 
             currentModelId:-1, // 当前编辑模型的ID，数据库中
 
@@ -92,7 +96,7 @@ class ModelEdit extends Component {
             // attr 面板
             tableFilters:{}, // 保存对table的Filer设置
             attrActivePanel: ['1','2','3','4'],
-            execResult:[], //保存从服务器返回的执行结果
+            execResult:{}, //保存从服务器返回的执行结果
             updateFlag:1,
         }
         this._hock = hock
@@ -110,7 +114,9 @@ class ModelEdit extends Component {
     render() {
         let dbColumns = this.props.httpData_TableColumnInfo[this.state.currentSelectedNode]
         let tableFilter = this.state.tableFilters[this.state.currentSelectedNode]
+        let currentExecResult = this.state.execResult[this.state.currentSelectedNode]
         if(!tableFilter) tableFilter = []
+        if(!currentExecResult) currentExecResult = []
         let dbFileds = []
         if(dbColumns) {
             dbFileds = dbColumns.map(column => column.field)
@@ -134,7 +140,14 @@ class ModelEdit extends Component {
             <Sider width={this.state.defaultTreePanelWidth} style={{transition:'none'}}>
                 {createTree(this)}
             </Sider>
-            <div className='model-edit-move-line' style={{left:this.state.defaultTreePanelWidth - 4, width: this.state.leftLineWidth}} ref={d => this.domResizeLineLeft = d}/>
+                        
+            <div className='model-edit-move-line'
+            style={{left:this.state.defaultTreePanelWidth}} 
+            ref={d => this.domResizeLineLeft = d}>
+                <div className={this.state.isLeftTogglet ? 'left-toggle- left-toggle-show' : 'left-toggle- left-toggle'} >
+                <div className='point-to-right' />
+                </div>
+            </div>
             <Layout>
               <Header style={{ padding:0}}>
                 <span style={{color:'#fff', float:'left', paddingLeft:'10px', fontSize:'1.4em', cursor:'pointer'}} onClick={_ => this.props.history.goBack()}>返回</span>
@@ -143,19 +156,34 @@ class ModelEdit extends Component {
                     style={{color:'#fff', float:'left', paddingLeft:'1%'}}>
                     <Button type="primary" icon="save"  onClick={this.save}>保存</Button>
                     <Button type="primary" icon="edit"  onClick={_ => this.setState({modalRenameShow:true})}>重命名</Button>
-                    <Popconfirm title='确认发布模型？' okText="确定" cancelText="取消" onConfirm={_ => {
-                        message.success('发布模型')
+                    <Popconfirm title='新建模型将删除已有的模型进度，确定？' okText="确定" cancelText="取消" onConfirm={_ => {
+                        this.resetUserData()
+                    }}>
+                        <Button type="primary" icon="plus" >新建模型</Button>
+                    </Popconfirm>
+                    <Popconfirm title='确认发布模型，请确保该模型还不存在？' okText="确定" cancelText="取消" onConfirm={_ => {
+                        let modelId = this.state.currentModelId
+                        if(modelId === -1 || this.state.isEdited) {
+                            message.warn('请先保存模型')
+                        } else {
+                            this.setState({modalCreateShareModelShow: true})
+                        }
                     }}>
                         <Button type="primary" icon="to-top" >发布模型</Button>
                     </Popconfirm>
-                    <Popconfirm title='确认更新模型？' okText="确定" cancelText="取消" onConfirm={_ => {
-                        message.success('更认新模型')
+                    <Popconfirm title='确认更新模型，请确保模型以存在？' okText="确定" cancelText="取消" onConfirm={_ => {
+                        let modelId = this.state.currentModelId
+                        if(modelId === -1 || this.state.isEdited) {
+                            message.warn('请先保存模型')
+                        } else {
+                            coreUpdateShareModel(modelId, this.state.currentFileName)
+                        }
                     }}>
                         <Button type="primary" icon="upload" >更新模型</Button>
                     </Popconfirm>
 
                     <Popconfirm title='确认全部执行？' okText="确定" cancelText="取消" onConfirm={_ => {
-                        message.success('全部执行')
+                        coreExecModel(this)
                     }}>
                         <Button type="primary" icon="hourglass" >全部执行</Button>
                     </Popconfirm>
@@ -192,7 +220,15 @@ class ModelEdit extends Component {
                                 </defs>
                             </svg>
                         </div>
-                        <div className='model-edit-move-line' style={{right:this.state.defaultAttrPanelWidth - 4, width: this.state.rightLineWidth}} ref={d => this.domResizeLine = d}/>
+                        <div className='model-edit-move-line' 
+                        style={{right:this.state.defaultAttrPanelWidth}} 
+                        ref={d => this.domResizeLine = d}>
+                        <div className={this.state.isRightTogglet ? 'right-toggle- right-toggle-show' : 'right-toggle- right-toggle'} >
+                        <div className='point-to-left' />
+                        </div>
+                        </div>
+                        
+                        
                         <div className='model-edit-attrs' style={{width:this.state.defaultAttrPanelWidth}}>
                         {this.state.currentSelectedNodeConf ? <Collapse activeKey={this.state.attrActivePanel} onChange={value => {
                             if(value.indexOf('4') === -1) {
@@ -218,7 +254,7 @@ class ModelEdit extends Component {
                             }} conf={this.state.currentSelectedNodeConf} />
                             </Panel>
                             <Panel header="执行结果" header={<div className='model-edit-title'>执行结果显示<i className='h-hold'/><Button onClick={_ => true} type='primary' style={{marginRight:6}} size='small' onClick={_ => coreExecModelPart(this)}>执行选中模型</Button><Popover placement='topRight' content={<div><div>这里显示模型运行产生的最终结果</div></div>} title="运行结果"><Icon type="info-circle-o" style={{lineHeight:'22px', paddingRight: 4}} /></Popover></div>} key="4">
-                            <ModelExecResult conf={this.state.currentSelectedNodeConf} execResult={this.state.execResult}/>
+                            <ModelExecResult conf={this.state.currentSelectedNodeConf} execResult={currentExecResult}/>
                             </Panel>
                         </Collapse> : <div className='select-empty-hold'>选中模型进行编辑</div>}
                         </div>
@@ -228,7 +264,18 @@ class ModelEdit extends Component {
           </Layout>
 
           <Modals.ModalRenameModel cancel={_ => this.setState({modalRenameShow:false})} modalShow={this.state.modalRenameShow} ok={newName => {
-              this.setState({modalRenameShow:false, currentFileName:newName})
+              coreUpdateModelName(this, this.state.currentFileName, newName).then(ok => {
+                  if(ok) {
+                    this.setState({modalRenameShow:false, currentFileName:newName})
+                  } else {
+                      this.setState({modalRenameShow: false})
+                  }
+              })
+          }} />
+          <Modals.ModalCreateShareModel cancel={_ => this.setState({modalCreateShareModelShow: false})} modalShow={this.state.modalCreateShareModelShow} ok={(intro, type) => {
+                coreCreateShare(this.state.currentModelId, this.state.currentFileName, intro, type).then(_ => {
+                    this.setState({modalCreateShareModelShow: false})
+                })
           }} />
           </div>
           )
@@ -250,11 +297,25 @@ class ModelEdit extends Component {
             if(httpData_UserModelData.data.length > 0) {
                 let data = httpData_UserModelData.data[0]
                 initDatas(this, data)
+            } else {
             }
         }
         if(httpData_TopicTreeData.code !== 0) {
             listTree()
         }
+    }
+
+    // 新建编辑模型， 清空用户的编辑数据
+    resetUserData = () => {
+        let {httpData_UserModelData, listUserModel, clearUserModel} = this.props
+        clearUserModel()
+        AFetchJSON(Apis.model.reset).then(json => {
+            if(json.code === 0) {
+                message.info('删除当前编辑数据成功')
+                resetDatas(this)
+            } else {
+            }
+        })
     }
 
     initD3 = () => {
@@ -343,20 +404,6 @@ class ModelEdit extends Component {
                 typeC:typeC,
                 data: hock.toggleSourceData
             })
-            /*
-            let trans = getTransformXY(hock.workBench)
-            let cc = {
-                ...typeC,
-                x: this.posc.x - 200 - trans.x,
-                y: this.posc.y - 64 - trans.y,
-                id:uuid(),
-                text: `${hock.toggleSourceData.metaName}(${hock.toggleSourceData.tableName})`
-            }
-            addData(cc)
-            checkNodePosition(hock.workBench, cc, this.renderD3)
-            this.canCreate = false
-            this.posc = null
-            */
         }
     }
     enterWork = () => {
@@ -383,7 +430,7 @@ class ModelEdit extends Component {
 
     componentWillReceiveProps(nextProps) {
         // 接收到modal数据
-        console.log('rec1')        
+        // console.log('rec1')        
         if(nextProps.workConf && nextProps.workConf.type && nextProps.workConf.data && hock.triggerSourceNode) {
             CreateAndRefresh(this, nextProps.workConf)
         } else {
@@ -394,23 +441,26 @@ class ModelEdit extends Component {
                     initDatas(this, data)
                 }
             } else {
-                console.log('rec2')
+                // console.log('rec2')
             }
         }
     }
 
+    // 变更选中的节点
     changeSelectedNode = (conf) => {
-        if(conf.type === 'DataSource') {
+        if(conf.type === 'DataSource' || conf.type === 'Calc') {
             let tableName = conf._workConf.tableName
             if(this.state.currentSelectedNode === tableName) {
                 return
             }
             this.props.listColumnInfoByTableName(tableName)
-            this.setState({currentSelectedNode: tableName, currentSelectedNodeConf: conf, execResult: [], updateFlag: this.state.updateFlag + 1})
+            let refresh = {currentSelectedNode: tableName, currentSelectedNodeConf: conf, isEdited: true, updateFlag: this.state.updateFlag + 1}
+            this.setState(refresh)
+            if(!this.state.execResult[this.state.currentSelectedNode]) {
+                coreExecModelPart(this)
+            }
         } else if(conf.type === 'Union') {
-            this.setState({currentSelectedNode: null, currentSelectedNodeConf : conf, execResult: [], updateFlag: this.state.updateFlag + 1})
-        } else if(conf.type === 'Calc') {
-            this.setState({currentSelectedNode: null, currentSelectedNodeConf : conf, execResult: [], updateFlag: this.state.updateFlag + 1})
+            this.setState({currentSelectedNode: null, currentSelectedNodeConf : conf, isEdited: true, updateFlag: this.state.updateFlag + 1})
         }
     }
 
@@ -434,6 +484,7 @@ class ModelEdit extends Component {
                     this.setState({visibleAggModal:true})
                 } else {
                     addLink(lineData)
+                    this.setState({isEdited: true})
                     this.renderD3()
                 }
             })
@@ -454,6 +505,7 @@ function mapStateToProps(state) {
     return {
         listTree: () => dispatch(listTree(dispatch)),
         listUserModel: () => dispatch(listUserModel(dispatch)),
+        clearUserModel: () => dispatch({type: 'HTTP_CLEAR_USER_MODEL_DATA'}),
         listColumnInfoByTableName: (tableName, force = false) => dispatch(listColumnInfoByTableName(dispatch, tableName, force))
       // onGetHttp: (page) => dispatch(fg(dispatch, page))
     }

@@ -50,9 +50,10 @@ class App extends React.Component {
     componentWillReceiveProps(newProps) {
         if(this.props.visible && !newProps.visible) {
             this.setState({data:[], holdData: []})
+            this.setState({data:[]})
             this.props.form.resetFields()
         }
-        if(newProps.dbColumns) {
+        if(newProps.dbColumns && this.state.data.length === 0) {
             let data = newProps.dbColumns.map(d => {
                 return {
                     key: d.field,
@@ -107,6 +108,7 @@ class App extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 values.changeColumns = this.state.data
+                console.log(values)
                 submitConf(values)
             }
         });

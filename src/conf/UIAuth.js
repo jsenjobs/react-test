@@ -1,7 +1,7 @@
 
 import React,{Component} from 'react'
 import PropTypes from 'prop-types'
-import {AFetch} from '../utils/AFetch'
+import {AFetchJSON, getStore} from '../utils/AFetch'
 import Apis from '../Api/Apis'
 
 export let wrapAuth = (ComposedComponent) => class WrapComponent extends Component {
@@ -17,9 +17,27 @@ export let wrapAuth = (ComposedComponent) => class WrapComponent extends Compone
             return
         }
         if(this.props.permissions) {
-            AFetch(Apis.auth.hasPermissions + JSON.stringify(this.props.permissions)).then(res => res.json()).then(json => {
-                this.setState({permission:json.code === 0})
-            }).catch(e => this.setState({permission: false}))
+
+
+            let key = JSON.stringify(this.props.permissions)
+            let has = getStore().getState().httpData_authInfos[key]
+            if(has === true) {
+                this.setState({permission: true})
+                return
+            } else if(has === false) {
+                this.setState({permission: false})
+                return
+            }
+
+            AFetchJSON(Apis.auth.hasPermissions + key).then(json => {
+                if(json.code === 0) {
+                    this.setState({permission:true})
+                    getStore().dispatch({type:'HTTP_DATA_AUTH_INFOS_SET', data:{key:key, value:true}})
+                } else {
+                    this.setState({permission:false})
+                    getStore().dispatch({type:'HTTP_DATA_AUTH_INFOS_SET', data:{key:key, value:false}})
+                }
+            })
         } else {
             this.setState({permission:true})
         }
@@ -30,6 +48,7 @@ export let wrapAuth = (ComposedComponent) => class WrapComponent extends Compone
     }
 }
 
+// permission is permissions
 export let wrapAuthPermission = (ComposedComponent, permission, fetching, unAuth) => class WrapComponent extends Component {
     state = {
         isFetching: true,
@@ -45,9 +64,25 @@ export let wrapAuthPermission = (ComposedComponent, permission, fetching, unAuth
             return
         }
         if(permission) {
-            AFetch(Apis.auth.hasPermissions + JSON.stringify(permission)).then(res => res.json()).then(json => {
-                this.setState({permission:json.code === 0, isFetching: false})
-            }).catch(e => this.setState({permission: false}))
+            let key = JSON.stringify(permission)
+            let has = getStore().getState().httpData_authInfos[key]
+            if(has === true) {
+                this.setState({permission: true, isFetching: false})
+                return
+            } else if(has === false) {
+                this.setState({permission: false, isFetching: false})
+                return
+            }
+
+            AFetchJSON(Apis.auth.hasPermissions + key).then(json => {
+                if(json.code === 0) {
+                    this.setState({permission:true, isFetching: false})
+                    getStore().dispatch({type:'HTTP_DATA_AUTH_INFOS_SET', data:{key:key, value:true}})
+                } else {
+                    this.setState({permission:false, isFetching: false})
+                    getStore().dispatch({type:'HTTP_DATA_AUTH_INFOS_SET', data:{key:key, value:false}})
+                }
+            })
         } else {
             this.setState({permission:true})
         }

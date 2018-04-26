@@ -1,37 +1,32 @@
 import {getTransformXY} from './Utils'
 import {setLinks, setDatas, setUnionDatas, getDatas} from '../ModelConf'
+import {clearSelect} from '../Change/AttributeUpdate'
 
 
 var d3 = require('d3')
 
+// 将svg铺满 workbench， 尽管可能会有些模型不在内部， 但保证了界面铺满，在加载用户已有的编辑模型时，会加载其宽度，重新调整，以把所有模型都显示在svg内部
+// holdWidth holdHeight表示从服务器的到的配置文件里，工作区的大小，如果比这里默认计算出来的大，则应该用此参数
+function expandSvgToFullWorkBench(svg, outContainer, defaultAttrPanelWidth, holdWidth, holdHeight) {
+    let cc = getTransformXY(svg)
+    let containerH = outContainer.clientHeight - cc.y
+    let containerW = outContainer.clientWidth - cc.x + defaultAttrPanelWidth
+    if(containerW < holdWidth) containerW = holdWidth
+    if(containerH < holdHeight) containerH = holdHeight
+    svg.attr('width', containerW)
+    svg.attr('height', containerH)
+}
 let containerW = 0,containerH = 0
 export function initEvent(target, outContainer, oW=0, oH=0) {
     let svg = d3.select(".work-bench")
 
-    // 如果不是refresh 则不会调用onload[单页应用]
-    containerH = outContainer.offsetHeight
-    containerW = outContainer.offsetWidth
-    if(parseFloat(svg.attr('width')) < containerW) {
-        if(oW > containerW) {
-            svg.attr('width', oW)
-        } else {
-            svg.attr('width', containerW)
-        }
-    }
-    if(parseFloat(svg.attr('height')) < containerH) {
-        if(oH > containerH) {
-            svg.attr('width', oH)
-        } else {
-            svg.attr('height', containerH)
-        }
-    }
-    console.error(target.domResizeLine)
     let initResizeLine = () => {
         target.domResizeLine.onmouseenter = e => {
-            target.setState({rightLineWidth:12})
+            target.setState({isRightTogglet:true})
+            
         }
         target.domResizeLine.onmouseout = e => {
-            target.setState({rightLineWidth:4})
+            target.setState({isRightTogglet:false})
         }
         target.domResizeLine.onmousedown = e => {
             let startX = e.clientX
@@ -61,17 +56,20 @@ export function initEvent(target, outContainer, oW=0, oH=0) {
                     })
                 }
                 window.onresize()
-                target.setState({rightLineWidth:4})
+                target.setState({isRightTogglet:false})
                 target.domResizeLine.onmouseout = e => {
-                    target.setState({rightLineWidth:4})
+                    target.setState({isRightTogglet:false})
                 }
             }
         }
+
+
+
         target.domResizeLineLeft.onmouseenter = e => {
-            target.setState({leftLineWidth:12})
+            target.setState({isLeftTogglet:true})
         }
         target.domResizeLineLeft.onmouseout = e => {
-            target.setState({leftLineWidth:4})
+            target.setState({isLeftTogglet:false})
         }
         target.domResizeLineLeft.onmousedown = e => {
             let startX = e.clientX
@@ -97,38 +95,28 @@ export function initEvent(target, outContainer, oW=0, oH=0) {
                     })
                 }
                 window.onresize()
-                target.setState({leftLineWidth:4})
+                target.setState({isLeftTogglet:false})
                 target.domResizeLineLeft.onmouseout = e => {
-                    target.setState({leftLineWidth:4})
+                    target.setState({isLeftTogglet:false})
                 }
             }
         }
     }
-    initResizeLine()
+
     
     window.onload = _ => {
-        containerH = outContainer.offsetHeight
-        containerW = outContainer.offsetWidth
-        if(oW > containerW) {
-            svg.attr('width', oW)
-        } else {
-            svg.attr('width', containerW)
-        }
-        if(oH > containerH) {
-            svg.attr('width', oH)
-        } else {
-            svg.attr('height', containerH)
-        }
-
+        expandSvgToFullWorkBench(svg, outContainer, target.state.defaultAttrPanelWidth)
         initResizeLine()
     }
+    // 如果不是refresh 则不会调用onload[单页应用]
+    window.onload()
+    
     window.onresize = _ => {
         containerH = outContainer.offsetHeight
         containerW = outContainer.offsetWidth
-        console.log(containerW)
-        target.setState({
-            defaultEditorPanelWidth: 'calc(100% - ' + target.state.defaultAttrPanelWidth + 'px)',
-        })
+        // target.setState({
+        //     defaultEditorPanelWidth: 'calc(100% - ' + target.state.defaultAttrPanelWidth + 'px)',
+        // })
 
         let cc = getTransformXY(svg)
         if(parseFloat(svg.attr('width')) + cc.x < containerW) {
@@ -139,31 +127,19 @@ export function initEvent(target, outContainer, oW=0, oH=0) {
         }
     }
 
-    function dragStart() {
-        target.setState({WorkMove:true})
-        containerH = outContainer.offsetHeight
-        containerW = outContainer.offsetWidth
+    function mouseWheel(event) {
+        mouse(0, 2 * event.detail)
     }
-    function drag() {
-        mouse(d3.event.dx, d3.event.dy)
-    }
-
-    var canWheel = false
     target.domOutContainer.onmouseover = _ => {
-        canWheel = true
+        containerH = outContainer.clientHeight
+        containerW = outContainer.clientWidth
+        document.body.addEventListener("DOMMouseScroll", mouseWheel)
+        document.body.addEventListener.onmousewheel = mouseWheel
     }
     target.domOutContainer.onmouseout = _ => {
-        canWheel = false
+        document.body.removeEventListener('DOMMouseScroll', mouseWheel)
+        document.body.addEventListener.onmousewheel = null
     }
-    document.body.onmousewheel = function(event) {
-        if(!canWheel) return
-        event = event || window.event;
-        mouse(0, 2 * event.detail)
-    }
-    document.body.addEventListener("DOMMouseScroll", function(event) {
-        if(!canWheel) return
-        mouse(0, 2 * event.detail)
-    })
 
     function mouse(dx, dy) {
 
@@ -189,8 +165,26 @@ export function initEvent(target, outContainer, oW=0, oH=0) {
         }
         svg.attr('transform', 'translate(' + x + ',' + y + ')')
     }
+
+    let isMove = false
+    function dragStart() {
+        target.setState({WorkMove:true})
+        containerH = outContainer.offsetHeight
+        containerW = outContainer.offsetWidth
+        isMove = false
+    }
+    function drag() {
+        mouse(d3.event.dx, d3.event.dy)
+        isMove = true
+    }
     function dragEnd() {
-        target.setState({WorkMove:false})
+        let isEdited = target.state.isEdited
+        if(isMove) {
+            isEdited = true
+        } else {
+            clearSelect(target)
+        }
+        target.setState({WorkMove:false, isEdited})
     }
     svg
     .call(d3.drag()
@@ -211,7 +205,6 @@ export function initDatas(target, data) {
         currentFileName: data.name,
         intro:data.intro,
         isEdited:false,
-        lastSaveTime:new Date().toLocaleDateString(),
         currentModelId: data.id,
         defaultAttrPanelWidth: conf.defaultAttrPanelWidth,
         defaultEditorPanelWidth: conf.defaultEditorPanelWidth,
@@ -219,8 +212,42 @@ export function initDatas(target, data) {
         tableFilters: conf.tableFilters,
         lastSaveTime: conf.lastSaveTime,
     })
-    if(conf.transform) {
-        svg.attr('transform', conf.transform)
-    }
+    svg.attr('transform', conf.transform)
+    setTimeout(_ => {
+        expandSvgToFullWorkBench(svg, target.domOutContainer, conf.defaultAttrPanelWidth, parseFloat(conf.width), parseFloat(conf.height))
+    }, 0)
+    target.renderD3()
+}
+
+export function resetDatas(target) {
+    let svg = d3.select(".work-bench")
+    setDatas([])
+    setUnionDatas([])
+    setLinks([])
+    target.setState({
+        // conf
+        currentFileName:'未命名',
+        intro:'',
+        lastSaveTime:new Date().toLocaleString(),
+        isEdited:false,
+
+        // ui
+        defaultAttrPanelWidth: 360,
+        defaultEditorPanelWidth: 'calc(100% - 360px)',
+        defaultTreePanelWidth: 300,
+
+        currentModelId:-1, // 当前编辑模型的ID，数据库中
+
+        currentSelectedNode:null, // 当前点击选中的节点
+        currentSelectedNodeConf:null, // 当前点击选中的节点
+        // attr 面板
+        tableFilters:{}, // 保存对table的Filer设置
+        attrActivePanel: ['1','2','3','4'],
+        execResult:{}, //保存从服务器返回的执行结果
+    })
+    svg.attr('transform', 'translate(0,0)')
+    setTimeout(_ => {
+        expandSvgToFullWorkBench(svg, target.domOutContainer, 360, 0, 0)
+    }, 0)
     target.renderD3()
 }

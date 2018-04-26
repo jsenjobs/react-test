@@ -24,6 +24,7 @@ function doFetch(dispatch, tableName) {
     })
 }
 
+//
 export function httpData_TableColumnInfo(state = {}, action) {
     switch(action.type) {
         case 'HTTP_GET_TABLE_COLUMN_INFO':

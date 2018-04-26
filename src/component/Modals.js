@@ -1,11 +1,12 @@
 import React, {Component} from 'react'
-import { Row, Col, Layout, Tree, Icon, Table, Button, Tag, Modal, Form, Input, message} from 'antd'
+import { Row, Col, Layout, Tree, Icon, Table, Button, Tag, Modal, Form, Input, message, Checkbox} from 'antd'
 import { isExportSpecifier } from 'typescript';
 import ModeAggregation from './part/part/ModeAggregation';
 
 const ButtonGroup = Button.Group
 const FormItem = Form.Item
 
+// 1
 class ModalRenameModel extends Component {
     render() {
         let {cancel, modalShow} = this.props
@@ -43,6 +44,7 @@ class ModalRenameModel extends Component {
     }
 }
 
+// 2
 class ModalCreateShareModel extends Component {
     render() {
         let {cancel, modalShow} = this.props
@@ -62,6 +64,14 @@ class ModalCreateShareModel extends Component {
                 )}
                 </FormItem>
                 <FormItem>
+                    {getFieldDecorator('_private', {
+                        valuePropName: 'checked',
+                        initialValue: false,
+                    })(
+                        <Checkbox>发布为私有模型(私有模型仅自己可见)</Checkbox>
+                    )}
+                </FormItem>
+                <FormItem>
                 <Button type="primary" htmlType="submit" className="login-form-button">
                     发布
                 </Button>
@@ -74,7 +84,11 @@ class ModalCreateShareModel extends Component {
         e.preventDefault()
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                this.props.ok(values.intro)
+                let type = 0
+                if(values._private) {
+                    type = 1
+                }
+                this.props.ok(values.intro, type)
             }
         });
     }

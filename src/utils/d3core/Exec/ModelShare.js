@@ -3,8 +3,8 @@ import {message} from 'antd'
 import Apis from '../../../Api/Apis'
 
 
-export function createShare(modelId, modelName, intro) {
-    return AFetchJSON(Apis.model.saveShareModel + `${modelId}/${modelName}/${intro}`).then(json => {
+export function createShare(modelId, modelName, intro, type) {
+    return AFetchJSON(Apis.model.saveShareModel + `${modelId}/${modelName}/${intro}/${type}`).then(json => {
         if(json.code === 0) {
             message.success('发布模型成功')
             return true
@@ -25,7 +25,10 @@ export function updateShareModel(modelId, shareModelName) {
     })
 }
 
-export function updateModelName(oldModelName, newModelName) {
+export function updateModelName(target, oldModelName, newModelName) {
+    if(target.state.currentModelId === -1) {
+        return new Promise(resolve => resolve(true))
+    }    
     return AFetchJSON(Apis.model.updateName + `${oldModelName}/${newModelName}`).then(json => {
         if(json.code === 0 && json.effModel > 0) {
             message.success('更新模型名字成功')

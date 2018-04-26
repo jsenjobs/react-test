@@ -6,7 +6,7 @@ const RadioGroup = Radio.Group
 const {Option} = Select
 let uuid = 0
 const funcDataSource = [
-    'CONCAT','REPLACE'
+    'CONCAT', 'REPLACE', 'SUBSTRING'
 ]
 class App extends React.Component {
     constructor(props) {
@@ -50,6 +50,7 @@ class App extends React.Component {
         let {submitConf} = this.props
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                // console.log(values)
                 submitConf(values)
             }
         });
@@ -167,7 +168,7 @@ class App extends React.Component {
             
                     <Row>
                         <Col span={spanW} span={spanW / 3} style={{padding:0}}>
-                        {getFieldDecorator(`name[${k}]`, {
+                        {getFieldDecorator(`names[${k}]`, {
                             rules: [{
                             required: true,
                             message: "请输入新增字段名",
@@ -177,7 +178,7 @@ class App extends React.Component {
                         )}
                         </Col>
                         <Col span={spanW} span={spanW * 2 / 3} style={{padding:0}}>
-                            {getFieldDecorator(`value[${k}]`, {
+                            {getFieldDecorator(`funcs[${k}]`, {
                                 rules: [{
                                 required: true,
                                 message: "请输入新增字段表达式",

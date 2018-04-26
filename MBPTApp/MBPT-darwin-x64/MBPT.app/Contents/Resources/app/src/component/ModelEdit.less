@@ -1,6 +1,29 @@
 #mbase {
     height: 100%;
     width: 100%;
+    .model-edit-move-line {
+        width: 0px;
+        overflow: visible;
+        .point-to-right {
+            width: 7px;
+            height: 7px;
+            border-top: 2px solid #ffffff80;
+            border-right: 2px solid #ffffff80;
+            transform: rotate(45deg);
+            margin-left: -10px;
+        }
+        .point-to-left {
+            width: 7px;
+            height: 7px;
+            border-top: 2px solid #ffffff80;
+            border-right: 2px solid #ffffff80;
+            transform: rotate(-135deg);
+            margin-right: -10px;
+        }
+    }
+    .model-edit-move-line:hover {
+        width: 0px;
+    }
     .shot-container {
         height: 100%;
         width: 100%;
@@ -89,20 +112,23 @@
     .ant-layout-sider-children {
         overflow: auto;
     }
-    .ant-collapse-content {
-        padding: 0 2px;
-    }
-    .ant-collapse-content-box {
-        padding: 2px 0;
-    }
-    .ant-collapse-content table {
-        font-size: 10px;
-    }
-    .ant-collapse-content table thead {
-        font-size: 8px;
-    }
-    .ant-collapse-content table tbody > tr > td,#mbase .ant-collapse-content table thead > tr > th {
-        padding: 0px;
+    .ant-collapse {
+        border-radius: 0;
+        .ant-collapse-content {
+            padding: 0 2px;
+        }
+        .ant-collapse-content-box {
+            padding: 2px 0;
+        }
+        .ant-collapse-content table {
+            font-size: 10px;
+        }
+        .ant-collapse-content table thead {
+            font-size: 8px;
+        }
+        .ant-collapse-content table tbody > tr > td,#mbase .ant-collapse-content table thead > tr > th {
+            padding: 0px;
+        }
     }
     .function-btn {
         .ant-btn-primary {
