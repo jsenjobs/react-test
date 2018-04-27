@@ -1,5 +1,5 @@
 // const ApiBase = 'http://server001:8080/'
-const ApiBase = 'http://192.168.0.176:8080/'
+const ApiBase = 'http://192.168.0.24:8083/api/mbpt/'
 const ApiAuthBase = ApiBase + 'ACRUD/'
 
 const api = {
